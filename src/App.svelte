@@ -43,15 +43,26 @@
 
     return token;
   }
+
+  function logout() {
+    token = null;
+    sessionStorage.clear();
+  }
 </script>
 
 <main>
   <h1>Frequent Transactions for YNAB</h1>
 
-  <p>Token: {token}</p>
-  <button on:click|preventDefault={authorizeWithYNAB}
-    >Authorize with YNAB</button
-  >
+  {#if token}
+    Logged in
+    <button on:click|preventDefault={logout}>
+      Logout
+    </button>
+  {:else}
+    <button on:click|preventDefault={authorizeWithYNAB}>
+      Authorize with YNAB
+    </button>
+  {/if}
 
   <h2 id="privacy">Privacy Policy</h2>
   <p>
