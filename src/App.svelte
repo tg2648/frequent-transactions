@@ -1,12 +1,12 @@
 <script>
-  import { onMount } from "svelte";
-  import * as ynab from "ynab";
+  import { onMount } from 'svelte';
 
   // Import our config for YNAB
-  import config from "./ynab_config.json";
+  import config from './ynab_config.json';
 
   let token;
   let ynabApi;
+  let ynab = window.ynab;
 
   onMount(() => {
     token = findYNABToken();
@@ -27,18 +27,18 @@
       .replace(/&/g, '","')
       .replace(/=/g, '":"');
 
-    if (search && search !== "") {
+    if (search && search !== '') {
       // Try to get access_token from the hash returned by OAuth
       const params = JSON.parse('{"' + search + '"}', function (key, value) {
-        return key === "" ? value : decodeURIComponent(value);
+        return key === '' ? value : decodeURIComponent(value);
       });
 
       token = params.access_token;
-      sessionStorage.setItem("ynab_access_token", token);
-      window.location.hash = "";
+      sessionStorage.setItem('ynab_access_token', token);
+      window.location.hash = '';
     } else {
       // Otherwise try sessionStorage
-      token = sessionStorage.getItem("ynab_access_token");
+      token = sessionStorage.getItem('ynab_access_token');
     }
 
     return token;
@@ -64,7 +64,7 @@
     </button>
   {/if}
 
-  <h2 id="privacy">Privacy Policy</h2>
+  <h2 id='privacy'>Privacy Policy</h2>
   <p>
     This website does not store any information from you or your YNAB account.
     All data retrieved from the YNAB API is stored only in your browser and is
