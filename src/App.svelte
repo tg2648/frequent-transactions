@@ -1,3 +1,7 @@
+<svelte:head>
+  <script src="ynab.js" async></script>
+</svelte:head>
+
 <script>
   import { onMount } from 'svelte';
 
@@ -11,6 +15,7 @@
   onMount(() => {
     token = findYNABToken();
     if (token) {
+      //@ts-ignore
       ynabApi = new ynab.api(token);
     }
   });
