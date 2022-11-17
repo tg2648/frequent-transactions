@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import * as ynab from "ynab";
+  import Footer from "./lib/Footer.svelte";
 
   // Import our config for YNAB
   import { config } from "./ynab_config";
@@ -78,7 +79,6 @@
       <p>{budget.name}</p>
     {/each}
     <p>
-      Logged in
       <button on:click|preventDefault={logout}> Logout </button>
     </p>
   {:else}
@@ -87,10 +87,7 @@
     </button>
   {/if}
 
-  <h2 id="privacy">Privacy Policy</h2>
-  <p>
-    This website does not store any information from you or your YNAB account.
-    All data retrieved from the YNAB API is stored only in your browser and is
-    never transmitted to any other location or third-party.
-  </p>
+  {#if !token}
+    <Footer/>
+  {/if}
 </main>
