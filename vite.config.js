@@ -7,5 +7,10 @@ export default defineConfig({
   plugins: [svelte()],
   preview: {
     port: 5173
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true
+    }
   }
 })
