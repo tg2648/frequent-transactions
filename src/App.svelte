@@ -6,7 +6,7 @@
   import { onMount } from 'svelte';
 
   // Import our config for YNAB
-  import config from './ynab_config.json';
+  import { config } from './ynab_config'
 
   let token;
   let ynabApi;
