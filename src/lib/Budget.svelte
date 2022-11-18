@@ -10,7 +10,7 @@
   export let budget;
 
   let budgetId = budget.id;
-  let accounts = []
+  let accounts = [];
   let selectedAccountId = null;
   let loading = false;
 
@@ -19,15 +19,15 @@
   const ynabApi = getApi();
 
   onMount(() => {
-    getAccounts()
-  })
+    getAccounts();
+  });
 
   function getAccounts() {
     loading = true;
-    ynabApi.accounts.getAccounts(budgetId)
+    ynabApi.accounts
+      .getAccounts(budgetId)
       .then((res) => {
         accounts = res.data.accounts;
-        console.log(accounts);
       })
       .catch((err) => {
         apiError.set(err.error.detail);
@@ -49,7 +49,7 @@
         {account.name}
       </option>
     {:else}
-      <option></option>
+      <option />
     {/each}
   </select>
 </form>
