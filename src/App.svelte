@@ -16,8 +16,8 @@
 
   // Make YNAB api available to other components
   setContext(config.context_key, {
-    getApi: () => ynabApi
-  })
+    getApi: () => ynabApi,
+  });
 
   onMount(() => {
     token = findYNABToken();
@@ -60,21 +60,33 @@
     token = null;
     apiError.set(null);
     sessionStorage.clear();
+    localStorage.clear();
   }
 
   function getDefaultBudget() {
-    loading = true;
-    ynabApi.budgets
-      .getBudgets()
-      .then((res) => {
-        selectedBudget = res.data.default_budget;
-      })
-      .catch((err) => {
-        apiError.set(err.error.detail);
-      })
-      .finally(() => {
-        loading = false;
-      });
+    let cachedData = localStorage.getItem("selectedBudget");
+    if (cachedData) {
+      console.log("Budget cached");
+      selectedBudget = JSON.parse(cachedData);
+    } else {
+      console.log("Calling budget endpoint");
+      loading = true;
+      ynabApi.budgets
+        .getBudgets()
+        .then((res) => {
+          selectedBudget = res.data.default_budget;
+          localStorage.setItem(
+            "selectedBudget",
+            JSON.stringify(selectedBudget)
+          );
+        })
+        .catch((err) => {
+          apiError.set(err.error.detail);
+        })
+        .finally(() => {
+          loading = false;
+        });
+    }
   }
 </script>
 
