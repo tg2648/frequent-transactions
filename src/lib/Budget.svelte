@@ -4,7 +4,7 @@
   import * as ynab from "ynab";
 
   // Local imports
-  import { config } from "../ynab_config";
+  import { config } from "../ynabConfig";
   import { apiError } from "../stores";
 
   export let budget;

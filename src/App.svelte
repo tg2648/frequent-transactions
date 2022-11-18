@@ -3,12 +3,13 @@
   import * as ynab from "ynab";
 
   // Local imports
-  import { config } from "./ynab_config";
+  import { config } from "./ynabConfig";
   import { apiError } from "./stores";
   import Budget from "./lib/Budget.svelte";
   import Footer from "./lib/Footer.svelte";
 
-  let ynabApi = new ynab.api("temp");
+  /** @type { ynab.api } */
+  let ynabApi = null;
   let token = null;
   let selectedBudget = null;
   let loading = false;
