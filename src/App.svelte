@@ -1,21 +1,28 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, setContext } from "svelte";
   import * as ynab from "ynab";
+
+  // Local imports
+  import { config } from "./ynab_config";
+  import { apiError } from "./stores";
+  import Budget from "./lib/Budget.svelte";
   import Footer from "./lib/Footer.svelte";
 
-  // Import our config for YNAB
-  import { config } from "./ynab_config";
+  let ynabApi = new ynab.api("temp");
+  let token = null;
+  let selectedBudget = null;
+  let loading = false;
 
-  let token;
-  let api = new ynab.api("temp");
-  let budgets = [];
-  let loading;
+  // Make YNAB api available to other components
+  setContext(config.context_key, {
+    getApi: () => ynabApi
+  })
 
   onMount(() => {
     token = findYNABToken();
     if (token) {
-      api = new ynab.api(token);
-      getBudgets();
+      ynabApi = new ynab.api(token);
+      getDefaultBudget();
     }
   });
 
@@ -50,18 +57,19 @@
 
   function logout() {
     token = null;
+    apiError.set(null);
     sessionStorage.clear();
   }
 
-  function getBudgets() {
+  function getDefaultBudget() {
     loading = true;
-    api.budgets
+    ynabApi.budgets
       .getBudgets()
       .then((res) => {
-        budgets = res.data.budgets;
+        selectedBudget = res.data.default_budget;
       })
       .catch((err) => {
-        console.error(err.error.detail);
+        apiError.set(err.error.detail);
       })
       .finally(() => {
         loading = false;
@@ -72,12 +80,16 @@
 <main>
   <h1>Frequent Transactions for YNAB</h1>
 
+  {#if $apiError}
+    <p>
+      YNAB returned an error: {$apiError}
+    </p>
+  {/if}
+
   {#if loading}
     <p>Loading...</p>
   {:else if token}
-    {#each budgets as budget (budget.id)}
-      <p>{budget.name}</p>
-    {/each}
+    <Budget budget={selectedBudget} />
     <p>
       <button on:click|preventDefault={logout}> Logout </button>
     </p>
@@ -85,9 +97,6 @@
     <button on:click|preventDefault={authorizeWithYNAB}>
       Authorize with YNAB
     </button>
-  {/if}
-
-  {#if !token}
-    <Footer/>
+    <Footer />
   {/if}
 </main>
