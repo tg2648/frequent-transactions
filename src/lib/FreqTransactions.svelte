@@ -9,6 +9,7 @@
 
   // Transaction parameters
   let account;
+  let category;
   let payeeName = "";
   let amount = null;
   let memo = "";
@@ -22,6 +23,7 @@
     {
       id: generateId(6),
       account: { id: "1", name: "One" },
+      category: { id: "1", name: "Category: Category" },
       payeeName: "Two",
       milliAmount: convertNumberToMilliUnits(123.93),
       displayAmount: currencyFormatter.format(123.93),
@@ -30,6 +32,7 @@
     {
       id: generateId(6),
       account: { id: "2", name: "Acc" },
+      category: { id: "1", name: "Category: Category" },
       payeeName: "Paay",
       milliAmount: convertNumberToMilliUnits(-4925.24),
       displayAmount: currencyFormatter.format(-4925.24),
@@ -41,6 +44,7 @@
     let newTransaction = {
       id: generateId(6),
       account: account,
+      category: category,
       payeeName: payeeName,
       milliAmount: convertNumberToMilliUnits(amount),
       displayAmount: currencyFormatter.format(amount),
@@ -87,6 +91,19 @@
     </select>
   {:else}
     Loading accounts...
+  {/if}
+
+  {#if categories.length > 0}
+    <label for="category">Category:</label>
+    <select bind:value={category} name="category" id="category">
+      {#each categories as category}
+        <option value={category}>
+          {category.name}
+        </option>
+      {/each}
+    </select>
+  {:else}
+    Loading categories...
   {/if}
 
   <label for="payee">Payee:</label>

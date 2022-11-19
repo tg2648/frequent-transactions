@@ -24,6 +24,7 @@
       .createTransaction(budgetId, {
         transaction: {
           account_id: transaction.account.id,
+          category_id: transaction.category.id,
           payee_name: transaction.payeeName,
           date: ynab.utils.getCurrentDateInISOFormat(),
           amount: transaction.milliAmount,
@@ -45,6 +46,9 @@
 <div class="card">
   <span>
     {transaction.account.name}
+  </span>
+  <span>
+    {transaction.category.name}
   </span>
   <span>
     {transaction.payeeName}
