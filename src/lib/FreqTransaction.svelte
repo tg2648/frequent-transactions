@@ -1,38 +1,58 @@
 <script>
-  import { getContext, onMount } from "svelte";
+  import { getContext } from "svelte";
   // @ts-ignore
   import * as ynab from "ynab";
 
   // Local imports
   import { config } from "../ynabConfig";
+  import { apiError } from "../stores";
 
   // Props
   export let transaction, removeTransaction;
 
+  const budgetId = getContext("budgetId");
   const { getApi } = getContext(config.context_key);
   /** @type { ynab.api } */
   const ynabApi = getApi();
 
-  const budgetId = getContext("budgetId");
+  let loading;
 
   function logTransaction() {
-    alert("Logging to: " + budgetId);
-    // ynabApi.transactions.createTransaction(budgetId, {});
+    loading = true;
+
+    ynabApi.transactions
+      .createTransaction(budgetId, {
+        transaction: {
+          account_id: transaction.account.id,
+          payee_name: transaction.payeeName,
+          date: ynab.utils.getCurrentDateInISOFormat(),
+          amount: transaction.milliAmount,
+        },
+      })
+      .then((res) => {
+        console.log("Transaction logged!");
+      })
+      .catch((err) => {
+        apiError.set(err.error.detail);
+      })
+      .finally(() => {
+        loading = false;
+      });
   }
 </script>
 
 <div class="card">
   <span>
-    {transaction.account}
+    {transaction.account.name}
   </span>
   <span>
-    {transaction.payee}
+    {transaction.payeeName}
   </span>
-  <span class={transaction.amount < 0 ? "negative" : "positive"}>
+  <span class={transaction.milliAmount < 0 ? "negative" : "positive"}>
     {transaction.displayAmount}
   </span>
 
-  <button on:click={logTransaction}>Log</button>
+  <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>
   <button on:click={removeTransaction}>X</button>
 </div>
 

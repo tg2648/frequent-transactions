@@ -94,8 +94,8 @@
   <h1>Frequent Transactions for YNAB</h1>
 
   {#if $apiError}
-    <p>
-      YNAB returned an error: {$apiError}
+    <p style="color: red;">
+      YNAB Error: {$apiError}
     </p>
   {/if}
 

@@ -1,14 +1,14 @@
 <script>
   import FreqTransaction from "./FreqTransaction.svelte";
-  import { generateId } from "../utils";
+  import { generateId, convertNumberToMilliUnits } from "../utils";
 
   // Props
   export let accounts = [];
   export let currencySettings;
 
-  let transAccountName = null;
-  let transPayeeName = null;
-  let transAmount = null;
+  let account = null;
+  let payeeName = null;
+  let amount = null;
 
   const currencyFormatter = new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -18,27 +18,27 @@
   let frequentTransactions = [
     {
       id: generateId(6),
-      account: "One",
-      payee: "Two",
-      amount: 123,
-      displayAmount: currencyFormatter.format(123),
+      account: { id: "1", name: "One" },
+      payeeName: "Two",
+      milliAmount: convertNumberToMilliUnits(123.93),
+      displayAmount: currencyFormatter.format(123.93),
     },
     {
       id: generateId(6),
-      account: "Acc",
-      payee: "Paay",
-      amount: -4564,
-      displayAmount: currencyFormatter.format(-4564),
+      account: { id: "2", name: "Acc" },
+      payeeName: "Paay",
+      milliAmount: convertNumberToMilliUnits(-4925.24),
+      displayAmount: currencyFormatter.format(-4925.24),
     },
   ];
 
   function addTransaction() {
     let newTransaction = {
       id: generateId(6),
-      account: transAccountName,
-      payee: transPayeeName,
-      amount: transAmount,
-      displayAmount: currencyFormatter.format(transAmount),
+      account: account,
+      payeeName: payeeName,
+      milliAmount: convertNumberToMilliUnits(amount),
+      displayAmount: currencyFormatter.format(amount),
     };
 
     frequentTransactions = [...frequentTransactions, newTransaction];
@@ -72,9 +72,9 @@
 <form>
   {#if accounts.length > 0}
     <label for="account">Account:</label>
-    <select bind:value={transAccountName} name="account" id="account">
+    <select bind:value={account} name="account" id="account">
       {#each accounts as account}
-        <option value={account.name}>
+        <option value={account}>
           {account.name}
         </option>
       {/each}
@@ -84,11 +84,11 @@
   {/if}
 
   <label for="payee">Payee:</label>
-  <input bind:value={transPayeeName} name="payee" id="payee" />
+  <input bind:value={payeeName} name="payee" id="payee" />
 
   <label for="amount">Amount:</label>
   <input
-    bind:value={transAmount}
+    bind:value={amount}
     type="number"
     name="amount"
     id="amount"
