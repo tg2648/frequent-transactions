@@ -4,11 +4,14 @@
 
   // Props
   export let accounts = [];
+  export let categories = [];
   export let currencySettings;
 
-  let account = null;
-  let payeeName = null;
+  // Transaction parameters
+  let account;
+  let payeeName = "";
   let amount = null;
+  let memo = "";
 
   const currencyFormatter = new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -22,6 +25,7 @@
       payeeName: "Two",
       milliAmount: convertNumberToMilliUnits(123.93),
       displayAmount: currencyFormatter.format(123.93),
+      memo: "",
     },
     {
       id: generateId(6),
@@ -29,6 +33,7 @@
       payeeName: "Paay",
       milliAmount: convertNumberToMilliUnits(-4925.24),
       displayAmount: currencyFormatter.format(-4925.24),
+      memo: "",
     },
   ];
 
@@ -39,6 +44,7 @@
       payeeName: payeeName,
       milliAmount: convertNumberToMilliUnits(amount),
       displayAmount: currencyFormatter.format(amount),
+      memo: memo,
     };
 
     frequentTransactions = [...frequentTransactions, newTransaction];
@@ -95,6 +101,9 @@
     step="0.01"
     placeholder="0.00"
   />
+
+  <label for="memo">Memo:</label>
+  <input bind:value={memo} name="memo" id="memo" />
 
   <button on:click|preventDefault={addTransaction} type="submit">Add</button>
 </form>

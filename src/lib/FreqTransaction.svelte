@@ -27,6 +27,7 @@
           payee_name: transaction.payeeName,
           date: ynab.utils.getCurrentDateInISOFormat(),
           amount: transaction.milliAmount,
+          memo: transaction.memo,
         },
       })
       .then((res) => {
@@ -50,6 +51,9 @@
   </span>
   <span class={transaction.milliAmount < 0 ? "negative" : "positive"}>
     {transaction.displayAmount}
+  </span>
+  <span>
+    {transaction.memo}
   </span>
 
   <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>
