@@ -19,26 +19,8 @@
     currency: currencySettings.iso_code,
   });
 
-  let frequentTransactions = [
-    {
-      id: generateId(6),
-      account: { id: "1", name: "One" },
-      category: { id: "1", name: "Category: Category" },
-      payeeName: "Two",
-      milliAmount: convertNumberToMilliUnits(123.93),
-      displayAmount: currencyFormatter.format(123.93),
-      memo: "",
-    },
-    {
-      id: generateId(6),
-      account: { id: "2", name: "Acc" },
-      category: { id: "1", name: "Category: Category" },
-      payeeName: "Paay",
-      milliAmount: convertNumberToMilliUnits(-4925.24),
-      displayAmount: currencyFormatter.format(-4925.24),
-      memo: "",
-    },
-  ];
+  let frequentTransactions =
+    JSON.parse(localStorage.getItem("frequentTransactions")) ?? [];
 
   function addTransaction() {
     let newTransaction = {
@@ -52,11 +34,19 @@
     };
 
     frequentTransactions = [...frequentTransactions, newTransaction];
+    localStorage.setItem(
+      "frequentTransactions",
+      JSON.stringify(frequentTransactions)
+    );
   }
 
   function removeTransaction(idx) {
     frequentTransactions.splice(idx, 1);
     frequentTransactions = frequentTransactions;
+    localStorage.setItem(
+      "frequentTransactions",
+      JSON.stringify(frequentTransactions)
+    );
   }
 </script>
 
