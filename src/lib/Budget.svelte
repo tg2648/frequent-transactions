@@ -21,7 +21,7 @@
   let budgetId = budget.id;
   let currencySettings = budget.currency_format;
   let accounts = [];
-  let categories = [];
+  let categoryGroups = [];
   let loading = false;
   let storageTimestamp;
 
@@ -66,7 +66,7 @@
     let cachedData = getFromLocalStorage(CATEGORIES_STORAGE_KEY, DATA_VERSION);
     if (cachedData) {
       console.log("Categories cached");
-      categories = cachedData.data;
+      categoryGroups = cachedData.data;
     } else {
       console.log("Calling categories endpoint");
       loading = true;
@@ -76,22 +76,32 @@
           /**
            * Clean up categories:
            * 1. Exclude deleted or hidden
-           * 2. Flatten category groups
-           * 3. Keep only id and name in the format "categoryGroupName: categoryName"
+           * 2. Keep only name of category group and id and name of category
            */
-          categories = res.data.category_groups
-            .filter((category) => !category.deleted && !category.hidden)
-            .flatMap((categoryGroup) =>
-              categoryGroup.categories
+          categoryGroups = res.data.category_groups
+            .filter(
+              (categoryGroup) =>
+                !categoryGroup.deleted &&
+                !categoryGroup.hidden &&
+                categoryGroup.name !== "Hidden Categories"
+            )
+            .map((categoryGroup) => ({
+              name: categoryGroup.name.startsWith("Internal")
+                ? "Internal"
+                : categoryGroup.name,
+              categories: categoryGroup.categories
                 .filter((category) => !category.deleted && !category.hidden)
                 .map((category) => ({
                   id: category.id,
-                  name: categoryGroup.name.startsWith("Internal")
-                    ? category.name
-                    : `${categoryGroup.name}: ${category.name}`,
-                }))
-            );
-          addToLocalStorage(CATEGORIES_STORAGE_KEY, categories, DATA_VERSION);
+                  name: category.name,
+                })),
+            }));
+
+          addToLocalStorage(
+            CATEGORIES_STORAGE_KEY,
+            categoryGroups,
+            DATA_VERSION
+          );
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -111,7 +121,7 @@
   }
 </script>
 
-<FreqTransactions {accounts} {categories} {currencySettings} />
+<FreqTransactions {accounts} {categoryGroups} {currencySettings} />
 
 <p>
   <i>

@@ -12,7 +12,7 @@
 
   // Props
   export let accounts = [];
-  export let categories = [];
+  export let categoryGroups = [];
   export let currencySettings;
 
   // Transaction parameters
@@ -93,14 +93,18 @@
     Loading accounts...
   {/if}
 
-  {#if categories.length > 0}
+  {#if categoryGroups.length > 0}
     <label for="category">Category:</label>
     <select bind:value={category} name="category" id="category">
       <option value="" selected />
-      {#each categories as category}
-        <option value={category}>
-          {category.name}
-        </option>
+      {#each categoryGroups as categoryGroup}
+        <optgroup label={categoryGroup.name}>
+          {#each categoryGroup.categories as category}
+            <option value={category}>
+              {category.name}
+            </option>
+          {/each}
+        </optgroup>
       {/each}
     </select>
   {:else}
