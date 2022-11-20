@@ -5,6 +5,12 @@
   // Local imports
   import { config } from "./ynabConfig";
   import { apiError } from "./stores";
+  import {
+    addToLocalStorage,
+    DATA_VERSION,
+    getFromLocalStorage,
+    SELECTED_BUDGET_STORAGE_KEY,
+  } from "./utils";
   import Budget from "./lib/Budget.svelte";
   import Footer from "./lib/Footer.svelte";
 
@@ -64,10 +70,14 @@
   }
 
   function getDefaultBudget() {
-    let cachedData = localStorage.getItem("selectedBudget");
+    let cachedData = getFromLocalStorage(
+      SELECTED_BUDGET_STORAGE_KEY,
+      DATA_VERSION
+    );
+
     if (cachedData) {
       console.log("Budget cached");
-      selectedBudget = JSON.parse(cachedData);
+      selectedBudget = cachedData.data;
     } else {
       console.log("Calling budget endpoint");
       loading = true;
@@ -75,9 +85,10 @@
         .getBudgets()
         .then((res) => {
           selectedBudget = res.data.default_budget;
-          localStorage.setItem(
-            "selectedBudget",
-            JSON.stringify(selectedBudget)
+          addToLocalStorage(
+            SELECTED_BUDGET_STORAGE_KEY,
+            selectedBudget,
+            DATA_VERSION
           );
         })
         .catch((err) => {

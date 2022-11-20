@@ -1,6 +1,14 @@
 <script>
   import FreqTransaction from "./FreqTransaction.svelte";
-  import { generateId, convertNumberToMilliUnits } from "../utils";
+  import {
+    generateId,
+    convertNumberToMilliUnits,
+    getFromLocalStorage,
+    DATA_VERSION,
+    FREQ_TRANSACTIONS_STORAGE_KEY,
+    addToLocalStorage,
+  } from "../utils";
+  import { afterUpdate } from "svelte";
 
   // Props
   export let accounts = [];
@@ -20,7 +28,8 @@
   });
 
   let frequentTransactions =
-    JSON.parse(localStorage.getItem("frequentTransactions")) ?? [];
+    getFromLocalStorage(FREQ_TRANSACTIONS_STORAGE_KEY, DATA_VERSION)?.data ??
+    [];
 
   function addTransaction() {
     let newTransaction = {
@@ -34,20 +43,20 @@
     };
 
     frequentTransactions = [...frequentTransactions, newTransaction];
-    localStorage.setItem(
-      "frequentTransactions",
-      JSON.stringify(frequentTransactions)
-    );
   }
 
   function removeTransaction(idx) {
     frequentTransactions.splice(idx, 1);
     frequentTransactions = frequentTransactions;
-    localStorage.setItem(
-      "frequentTransactions",
-      JSON.stringify(frequentTransactions)
-    );
   }
+
+  afterUpdate(() => {
+    addToLocalStorage(
+      FREQ_TRANSACTIONS_STORAGE_KEY,
+      frequentTransactions,
+      DATA_VERSION
+    );
+  });
 </script>
 
 <div>
@@ -73,6 +82,7 @@
   {#if accounts.length > 0}
     <label for="account">Account:</label>
     <select bind:value={account} name="account" id="account">
+      <option value="" selected />
       {#each accounts as account}
         <option value={account}>
           {account.name}
@@ -86,6 +96,7 @@
   {#if categories.length > 0}
     <label for="category">Category:</label>
     <select bind:value={category} name="category" id="category">
+      <option value="" selected />
       {#each categories as category}
         <option value={category}>
           {category.name}
