@@ -3,7 +3,7 @@
   import * as ynab from "ynab";
 
   // Local imports
-  import { config } from "./ynabConfig";
+  import { config } from "./config";
   import { apiError } from "./stores";
   import {
     addToLocalStorage,
