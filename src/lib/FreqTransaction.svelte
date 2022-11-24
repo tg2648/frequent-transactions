@@ -29,6 +29,11 @@
           date: ynab.utils.getCurrentDateInISOFormat(),
           amount: transaction.milliAmount,
           memo: transaction.memo,
+          flag_color: transaction.flag,
+          approved: transaction.approved,
+          cleared: transaction.cleared
+            ? ynab.SaveTransaction.ClearedEnum.Cleared
+            : ynab.SaveTransaction.ClearedEnum.Uncleared,
         },
       })
       .then((res) => {
@@ -58,6 +63,15 @@
   </span>
   <span>
     {transaction.memo}
+  </span>
+  <span>
+    {transaction.cleared}
+  </span>
+  <span>
+    {transaction.approved}
+  </span>
+  <span>
+    {transaction.flag}
   </span>
 
   <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>
