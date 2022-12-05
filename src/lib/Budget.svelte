@@ -13,6 +13,7 @@
     CATEGORIES_STORAGE_KEY,
     DATA_VERSION,
     getFromLocalStorage,
+    getRelativeTime,
   } from "../utils";
 
   // Props
@@ -23,7 +24,7 @@
   let accounts = [];
   let categoryGroups = [];
   let loading = false;
-  let storageTimestamp;
+  let storageTimestamp = new Date();
 
   // Make budget ID available to child components
   setContext("budgetId", budgetId);
@@ -42,7 +43,7 @@
     if (cachedData) {
       console.log("Accounts cached");
       accounts = cachedData.data;
-      storageTimestamp = cachedData.timestamp;
+      storageTimestamp = new Date(cachedData.timestamp);
     } else {
       console.log("Calling accounts endpoint");
       loading = true;
@@ -117,7 +118,6 @@
     localStorage.clear();
     getAccounts();
     getCategories();
-    storageTimestamp = null;
   }
 </script>
 
@@ -126,7 +126,7 @@
 <p>
   <i>
     Using budget: {budget.name}
-    (last updated on {storageTimestamp ?? new Date().toISOString()})
+    (last updated {getRelativeTime(new Date(), storageTimestamp)})
   </i>
   <button on:click={invalidateCache}>Refresh</button>
 </p>

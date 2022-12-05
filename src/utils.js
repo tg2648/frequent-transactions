@@ -54,3 +54,37 @@ export function addToLocalStorage(key, data, version) {
 export function getFromLocalStorage(key, version) {
   return JSON.parse(localStorage.getItem(`${key}_${version}`));
 }
+
+/**
+ * Returns relative time between t1 and t2.
+ * Always returned negatitve regardless of whether `t1` or `t2` is larger.
+ *
+ * @param {Date} t1
+ * @param {Date} t2
+ * @returns {string} Relative time string
+ */
+export function getRelativeTime(t1, t2) {
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+  let unit;
+
+  let delta = Math.abs(Math.floor((t1.getTime() - t2.getTime()) / 1000));
+
+  if (delta < 60) {
+    unit = "second";
+  } else if (delta < 3600) {
+    unit = "minute";
+    delta = Math.floor(delta / 60);
+  } else if (delta < 86_400) {
+    unit = "hour";
+    delta = Math.floor(delta / 3600);
+  } else if (delta < 604_800) {
+    unit = "day";
+    delta = Math.floor(delta / 86_400);
+  } else {
+    unit = "week";
+    delta = Math.floor(delta / 604_800);
+  }
+
+  // @ts-ignore
+  return rtf.format(-delta, unit);
+}
