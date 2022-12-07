@@ -1,30 +1,22 @@
 <script>
-  import { afterUpdate } from "svelte";
   import { SaveTransaction } from "ynab";
-  import FreqTransaction from "./FreqTransaction.svelte";
-  import {
-    generateId,
-    convertNumberToMilliUnits,
-    getFromLocalStorage,
-    DATA_VERSION,
-    FREQ_TRANSACTIONS_STORAGE_KEY,
-    addToLocalStorage,
-  } from "../utils";
 
   // Props
+  export let selectedBudgetId = null;
+  export let budgets = [];
   export let accounts = [];
   export let categoryGroups = [];
-  export let currencySettings;
+  export let addTransaction = (newTransaction) => {};
 
   // Transaction parameters
-  let account;
-  let category;
+  let account = null;
+  let category = null;
   let payeeName = "";
   let amount = null;
   let memo = "";
   let cleared = false;
   let approved = true;
-  let flag;
+  let flag = "";
 
   let flagOptions = {
     [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
@@ -35,66 +27,35 @@
     [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
   };
 
-  const currencyFormatter = new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: currencySettings.iso_code,
-  });
-
-  let frequentTransactions =
-    getFromLocalStorage(FREQ_TRANSACTIONS_STORAGE_KEY, DATA_VERSION)?.data ??
-    [];
-
-  function addTransaction() {
+  function clickHandler() {
     let newTransaction = {
-      id: generateId(6),
+      budgetId: selectedBudgetId,
       account: account,
       category: category,
       payeeName: payeeName,
-      milliAmount: convertNumberToMilliUnits(amount),
-      displayAmount: currencyFormatter.format(amount),
+      amount: amount,
       memo: memo,
       cleared: cleared,
       approved: approved,
       flag: flag,
     };
 
-    frequentTransactions = [...frequentTransactions, newTransaction];
+    addTransaction(newTransaction);
   }
-
-  function removeTransaction(idx) {
-    frequentTransactions.splice(idx, 1);
-    frequentTransactions = frequentTransactions;
-  }
-
-  afterUpdate(() => {
-    addToLocalStorage(
-      FREQ_TRANSACTIONS_STORAGE_KEY,
-      frequentTransactions,
-      DATA_VERSION
-    );
-  });
 </script>
 
-<div>
-  {#if frequentTransactions.length > 0}
-    <h3>Log transaction</h3>
-    {#each frequentTransactions as transaction, idx (transaction.id)}
-      <FreqTransaction
-        removeTransaction={() => removeTransaction(idx)}
-        {transaction}
-      />
-    {/each}
-  {/if}
-</div>
-
-<h3>Add frequent transaction</h3>
-
-<p>
-  YNAB will find an existing payee matching the provided name or create a new
-  payee.
-</p>
-
 <form>
+  <div>
+    <label for="budget">Budget:</label>
+    <select bind:value={selectedBudgetId} name="budget" id="budget">
+      {#each budgets as budget}
+        <option value={budget.id}>
+          {budget.name}
+        </option>
+      {/each}
+    </select>
+  </div>
+
   <div>
     {#if accounts.length > 0}
       <label for="account">Account:</label>
@@ -192,7 +153,7 @@
     </span>
   </div>
 
-  <button on:click|preventDefault={addTransaction} type="submit">Add</button>
+  <button on:click|preventDefault={clickHandler} type="submit">Add</button>
 </form>
 
 <style>

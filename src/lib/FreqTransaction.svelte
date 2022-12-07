@@ -1,16 +1,15 @@
 <script>
-  import { getContext } from "svelte";
   // @ts-ignore
   import * as ynab from "ynab";
+  import { getContext } from "svelte";
 
   // Local imports
   import { config } from "../config";
   import { apiError } from "../stores";
 
   // Props
-  export let transaction, removeTransaction;
+  export let transactionDetails, removeTransaction;
 
-  const budgetId = getContext("budgetId");
   const { getApi } = getContext(config.context_key);
   /** @type { ynab.api } */
   const ynabApi = getApi();
@@ -21,17 +20,17 @@
     loading = true;
 
     ynabApi.transactions
-      .createTransaction(budgetId, {
+      .createTransaction(transactionDetails.budgetId, {
         transaction: {
-          account_id: transaction.account.id,
-          category_id: transaction.category.id,
-          payee_name: transaction.payeeName,
+          account_id: transactionDetails.account.id,
+          category_id: transactionDetails.category.id,
+          payee_name: transactionDetails.payeeName,
           date: ynab.utils.getCurrentDateInISOFormat(),
-          amount: transaction.milliAmount,
-          memo: transaction.memo,
-          flag_color: transaction.flag,
-          approved: transaction.approved,
-          cleared: transaction.cleared
+          amount: transactionDetails.milliAmount,
+          memo: transactionDetails.memo,
+          flag_color: transactionDetails.flag,
+          approved: transactionDetails.approved,
+          cleared: transactionDetails.cleared
             ? ynab.SaveTransaction.ClearedEnum.Cleared
             : ynab.SaveTransaction.ClearedEnum.Uncleared,
         },
@@ -50,28 +49,28 @@
 
 <div class="card">
   <span>
-    {transaction.account.name}
+    {transactionDetails.account.name}
   </span>
   <span>
-    {transaction.category.name}
+    {transactionDetails.category.name}
   </span>
   <span>
-    {transaction.payeeName}
+    {transactionDetails.payeeName}
   </span>
-  <span class={transaction.milliAmount < 0 ? "negative" : "positive"}>
-    {transaction.displayAmount}
-  </span>
-  <span>
-    {transaction.memo}
+  <span class={transactionDetails.milliAmount < 0 ? "negative" : "positive"}>
+    {transactionDetails.displayAmount}
   </span>
   <span>
-    {transaction.cleared}
+    {transactionDetails.memo}
   </span>
   <span>
-    {transaction.approved}
+    {transactionDetails.cleared}
   </span>
   <span>
-    {transaction.flag}
+    {transactionDetails.approved}
+  </span>
+  <span>
+    {transactionDetails.flag}
   </span>
 
   <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>

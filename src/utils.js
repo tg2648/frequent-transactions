@@ -4,7 +4,9 @@
 
 export const DATA_VERSION = 1;
 
-export const SELECTED_BUDGET_STORAGE_KEY = "selectedBudget";
+export const DEFAULT_BUDGET_STORAGE_KEY = "defaultBudget";
+export const SELECTED_BUDGET_ID_KEY = "selectedBudgetId";
+export const ALL_BUDGETS_STORAGE_KEY = "allBudgets";
 export const ACCOUNTS_STORAGE_KEY = "accounts";
 export const CATEGORIES_STORAGE_KEY = "categories";
 export const FREQ_TRANSACTIONS_STORAGE_KEY = "frequentTransactions";

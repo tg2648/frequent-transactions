@@ -5,20 +5,12 @@
   // Local imports
   import { config } from "./config";
   import { apiError } from "./stores";
-  import {
-    addToLocalStorage,
-    DATA_VERSION,
-    getFromLocalStorage,
-    SELECTED_BUDGET_STORAGE_KEY,
-  } from "./utils";
-  import Budget from "./lib/Budget.svelte";
+  import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
 
   /** @type { ynab.api } */
   let ynabApi = null;
   let token = null;
-  let selectedBudget = null;
-  let loading = false;
 
   // Make YNAB api available to other components
   setContext(config.context_key, {
@@ -26,10 +18,10 @@
   });
 
   onMount(() => {
+    console.log("App onMount()");
     token = findYNABToken();
     if (token) {
       ynabApi = new ynab.api(token);
-      getDefaultBudget();
     }
   });
 
@@ -68,37 +60,6 @@
     sessionStorage.clear();
     localStorage.clear();
   }
-
-  function getDefaultBudget() {
-    let cachedData = getFromLocalStorage(
-      SELECTED_BUDGET_STORAGE_KEY,
-      DATA_VERSION
-    );
-
-    if (cachedData) {
-      console.log("Budget cached");
-      selectedBudget = cachedData.data;
-    } else {
-      console.log("Calling budget endpoint");
-      loading = true;
-      ynabApi.budgets
-        .getBudgets()
-        .then((res) => {
-          selectedBudget = res.data.default_budget;
-          addToLocalStorage(
-            SELECTED_BUDGET_STORAGE_KEY,
-            selectedBudget,
-            DATA_VERSION
-          );
-        })
-        .catch((err) => {
-          apiError.set(err.error.detail);
-        })
-        .finally(() => {
-          loading = false;
-        });
-    }
-  }
 </script>
 
 <main>
@@ -110,10 +71,8 @@
     </p>
   {/if}
 
-  {#if loading}
-    <p>Loading...</p>
-  {:else if token}
-    <Budget budget={selectedBudget} />
+  {#if token}
+    <Budgets />
     <p>
       <button on:click|preventDefault={logout}> Logout </button>
     </p>
