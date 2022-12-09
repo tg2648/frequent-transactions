@@ -1,26 +1,26 @@
 <script>
   // @ts-ignore
   import * as ynab from "ynab";
-  import { getContext, onMount, afterUpdate } from "svelte";
+  import { afterUpdate, getContext, onMount } from "svelte";
 
   // Local imports
   import { config } from "../config";
   import { apiError } from "../stores";
   import {
-    addToLocalStorage,
-    DATA_VERSION,
-    getFromLocalStorage,
-    SELECTED_BUDGET_ID_KEY,
-    getRelativeTime,
-    ALL_BUDGETS_STORAGE_KEY,
     ACCOUNTS_STORAGE_KEY,
+    addToLocalStorage,
+    ALL_BUDGETS_STORAGE_KEY,
     CATEGORIES_STORAGE_KEY,
+    convertNumberToMilliUnits,
+    DATA_VERSION,
     FREQ_TRANSACTIONS_STORAGE_KEY,
     generateId,
-    convertNumberToMilliUnits,
+    getFromLocalStorage,
+    getRelativeTime,
+    SELECTED_BUDGET_ID_KEY,
   } from "../utils";
-  import FreqTransaction from "./FreqTransaction.svelte";
   import AddTransactionForm from "./AddTransactionForm.svelte";
+  import FreqTransaction from "./FreqTransaction.svelte";
 
   /** @type { ynab.BudgetSummary } */
   let selectedBudget;
@@ -65,10 +65,14 @@
     );
 
     frequentTransactions = [...frequentTransactions, newTransaction];
+    addToLocalStorage(
+      FREQ_TRANSACTIONS_STORAGE_KEY,
+      frequentTransactions,
+      DATA_VERSION
+    );
   }
 
   onMount(() => {
-    console.log("Budgets onMount(). selectedBudgetId = " + selectedBudgetId);
     getBudgets();
   });
 
@@ -89,7 +93,9 @@
       ynabApi.budgets
         .getBudgets()
         .then((res) => {
-          selectedBudgetId = res.data.default_budget.id;
+          if (!selectedBudgetId) {
+            selectedBudgetId = res.data.default_budget.id;
+          }
           addToLocalStorage(
             SELECTED_BUDGET_ID_KEY,
             selectedBudgetId,
@@ -195,16 +201,13 @@
    */
   function removeTransaction(idx) {
     frequentTransactions.splice(idx, 1);
-    frequentTransactions = frequentTransactions;
-  }
-
-  afterUpdate(() => {
     addToLocalStorage(
       FREQ_TRANSACTIONS_STORAGE_KEY,
       frequentTransactions,
       DATA_VERSION
     );
-  });
+    frequentTransactions = frequentTransactions;
+  }
 </script>
 
 <div>
