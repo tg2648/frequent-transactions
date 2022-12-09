@@ -1,17 +1,4 @@
 /**
- * Constants and helper functions for working with data
- */
-
-export const DATA_VERSION = 1;
-
-export const DEFAULT_BUDGET_STORAGE_KEY = "defaultBudget";
-export const SELECTED_BUDGET_ID_KEY = "selectedBudgetId";
-export const ALL_BUDGETS_STORAGE_KEY = "allBudgets";
-export const ACCOUNTS_STORAGE_KEY = "accounts";
-export const CATEGORIES_STORAGE_KEY = "categories";
-export const FREQ_TRANSACTIONS_STORAGE_KEY = "frequentTransactions";
-
-/**
  * Generates a random string of hex characters of given size
  * https://stackoverflow.com/a/58326357/9009483
  *
@@ -31,31 +18,6 @@ export const generateId = (size) =>
 export const convertNumberToMilliUnits = (num) => {
   return (num * 1000).toString().replace(/([^-0-9])/, "");
 };
-
-/**
- * Helper for adding versioned data to local storage
- *
- * @param {string} key Storage key
- * @param {object} data Data to save
- * @param {number} version Version of data
- */
-export function addToLocalStorage(key, data, version) {
-  localStorage.setItem(
-    `${key}_${version}`,
-    JSON.stringify({ data: data, timestamp: new Date() })
-  );
-}
-
-/**
- * Helper for retrieving versioned data from local storage
- *
- * @param {string} key Storage key
- * @param {number} version Version of data
- * @returns {object} Object of type `{data: {}, timestamp: string}`
- */
-export function getFromLocalStorage(key, version) {
-  return JSON.parse(localStorage.getItem(`${key}_${version}`));
-}
 
 /**
  * Returns relative time between t1 and t2.

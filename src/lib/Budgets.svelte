@@ -5,19 +5,11 @@
 
   // Local imports
   import { config } from "../config";
-  import { apiError } from "../stores";
+  import { apiError, ynabData } from "../stores";
   import {
-    ACCOUNTS_STORAGE_KEY,
-    addToLocalStorage,
-    ALL_BUDGETS_STORAGE_KEY,
-    CATEGORIES_STORAGE_KEY,
     convertNumberToMilliUnits,
-    DATA_VERSION,
-    FREQ_TRANSACTIONS_STORAGE_KEY,
     generateId,
-    getFromLocalStorage,
     getRelativeTime,
-    SELECTED_BUDGET_ID_KEY,
   } from "../utils";
   import AddTransactionForm from "./AddTransactionForm.svelte";
   import FreqTransaction from "./FreqTransaction.svelte";
@@ -51,26 +43,7 @@
     getCategories(selectedBudgetId);
   }
 
-  let frequentTransactions =
-    getFromLocalStorage(FREQ_TRANSACTIONS_STORAGE_KEY, DATA_VERSION)?.data ??
-    [];
-
-  function addTransaction(newTransaction) {
-    newTransaction.id = generateId(6);
-    newTransaction.milliAmount = convertNumberToMilliUnits(
-      newTransaction.amount
-    );
-    newTransaction.displayAmount = currencyFormatter.format(
-      newTransaction.amount
-    );
-
-    frequentTransactions = [...frequentTransactions, newTransaction];
-    addToLocalStorage(
-      FREQ_TRANSACTIONS_STORAGE_KEY,
-      frequentTransactions,
-      DATA_VERSION
-    );
-  }
+  let frequentTransactions = ynabData.freqTransactions.load();
 
   onMount(() => {
     getBudgets();
@@ -78,15 +51,12 @@
 
   function getBudgets() {
     console.log("getBudgets()");
-    let cachedData = getFromLocalStorage(ALL_BUDGETS_STORAGE_KEY, DATA_VERSION);
+    let cachedData = ynabData.budgets.load();
 
     if (cachedData) {
       console.log("Budget cached");
-      selectedBudgetId = getFromLocalStorage(
-        SELECTED_BUDGET_ID_KEY,
-        DATA_VERSION
-      ).data;
-      budgets = getFromLocalStorage(ALL_BUDGETS_STORAGE_KEY, DATA_VERSION).data;
+      selectedBudgetId = ynabData.selectedBudgetId.load().data;
+      budgets = cachedData.data;
       storageTimestamp = new Date(cachedData.timestamp);
     } else {
       console.log("Calling budget endpoint");
@@ -96,16 +66,10 @@
           if (!selectedBudgetId) {
             selectedBudgetId = res.data.default_budget.id;
           }
-          addToLocalStorage(
-            SELECTED_BUDGET_ID_KEY,
-            selectedBudgetId,
-            DATA_VERSION
-          );
+          ynabData.selectedBudgetId.save(selectedBudgetId);
 
           budgets = res.data.budgets;
-          addToLocalStorage(ALL_BUDGETS_STORAGE_KEY, budgets, DATA_VERSION);
-
-          storageTimestamp = new Date();
+          storageTimestamp = ynabData.budgets.save(budgets);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -115,10 +79,7 @@
 
   function getAccounts(budgetId) {
     console.log(`getAccounts(${budgetId})`);
-    let cachedData = getFromLocalStorage(
-      `${ACCOUNTS_STORAGE_KEY}_${budgetId}`,
-      DATA_VERSION
-    );
+    let cachedData = ynabData.accounts.load();
 
     if (cachedData) {
       console.log("Accounts cached");
@@ -133,11 +94,7 @@
             name: account.name,
           }));
           accounts.sort((a, b) => a.name.localeCompare(b.name));
-          addToLocalStorage(
-            `${ACCOUNTS_STORAGE_KEY}_${budgetId}`,
-            accounts,
-            DATA_VERSION
-          );
+          ynabData.accounts.save(accounts);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -147,10 +104,7 @@
 
   function getCategories(budgetId) {
     console.log(`getCategories(${budgetId})`);
-    let cachedData = getFromLocalStorage(
-      `${CATEGORIES_STORAGE_KEY}_${budgetId}`,
-      DATA_VERSION
-    );
+    let cachedData = ynabData.categories.load();
 
     if (cachedData) {
       console.log("Categories cached");
@@ -184,11 +138,7 @@
                 })),
             }));
 
-          addToLocalStorage(
-            `${CATEGORIES_STORAGE_KEY}_${budgetId}`,
-            categoryGroups,
-            DATA_VERSION
-          );
+          ynabData.categories.save(categoryGroups);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -196,17 +146,26 @@
     }
   }
 
+  function addTransaction(newTransaction) {
+    newTransaction.id = generateId(6);
+    newTransaction.milliAmount = convertNumberToMilliUnits(
+      newTransaction.amount
+    );
+    newTransaction.displayAmount = currencyFormatter.format(
+      newTransaction.amount
+    );
+
+    frequentTransactions = [...frequentTransactions, newTransaction];
+    ynabData.freqTransactions.save(frequentTransactions);
+  }
+
   /**
-   * @param {number} idx
+   * @param {number} idx Index of the removed transaction
    */
   function removeTransaction(idx) {
     frequentTransactions.splice(idx, 1);
-    addToLocalStorage(
-      FREQ_TRANSACTIONS_STORAGE_KEY,
-      frequentTransactions,
-      DATA_VERSION
-    );
     frequentTransactions = frequentTransactions;
+    ynabData.freqTransactions.save(frequentTransactions);
   }
 </script>
 
