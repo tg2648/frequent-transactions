@@ -1,7 +1,20 @@
-import { writable } from "svelte/store";
+import { writable, readable } from "svelte/store";
 
 // Svelte stores
 export const apiError = writable(null);
+
+/**
+ * https://svelte.dev/tutorial/readable-stores
+ */
+export const currTime = readable(new Date(), function start(set) {
+  const interval = setInterval(() => {
+    set(new Date());
+  }, 1000);
+
+  return function stop() {
+    clearInterval(interval);
+  };
+});
 
 // Custom stores
 const DATA_VERSION = 1;

@@ -1,6 +1,9 @@
 <script>
   import { SaveTransaction } from "ynab";
-  import { ynabData } from "../stores";
+
+  // Local imports
+  import { ynabData, currTime } from "../stores";
+  import { getRelativeTime } from "../utils";
 
   // Props
   export let selectedBudgetId = null;
@@ -44,6 +47,7 @@
 
     addTransaction(newTransaction);
   }
+  console.log($currTime);
 </script>
 
 <form>
@@ -64,7 +68,11 @@
     <button on:click|preventDefault={refreshHandlers.budgets}>
       Refresh budgets
     </button>
-    <span>Last updated {refreshTimes.budgets}</span>
+    {#if refreshTimes.budgets}
+      <span>
+        Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
+      </span>
+    {/if}
   </div>
 
   <div>
@@ -81,7 +89,11 @@
       <button on:click|preventDefault={refreshHandlers.accounts}>
         Refresh accounts
       </button>
-      <span>Last updated {refreshTimes.accounts}</span>
+      {#if refreshTimes.accounts}
+        <span>
+          Last updated {getRelativeTime($currTime, refreshTimes.accounts)}
+        </span>
+      {/if}
     {:else}
       Loading accounts...
     {/if}
@@ -105,7 +117,11 @@
       <button on:click|preventDefault={refreshHandlers.categories}>
         Refresh categories
       </button>
-      <span>Last updated {refreshTimes.categories}</span>
+      {#if refreshTimes.categories}
+        <span>
+          Last updated {getRelativeTime($currTime, refreshTimes.categories)}
+        </span>
+      {/if}
     {:else}
       Loading categories...
     {/if}

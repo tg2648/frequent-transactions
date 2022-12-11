@@ -21,7 +21,6 @@ export const convertNumberToMilliUnits = (num) => {
 
 /**
  * Returns relative time between t1 and t2.
- * Always returned negatitve regardless of whether `t1` or `t2` is larger.
  *
  * @param {Date} t1
  * @param {Date} t2
@@ -31,11 +30,9 @@ export function getRelativeTime(t1, t2) {
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
   let unit;
 
-  let delta = Math.abs(Math.floor((t1.getTime() - t2.getTime()) / 1000));
+  let delta = Math.max(Math.floor((t1.getTime() - t2.getTime()) / 1000), 0);
 
-  if (delta < 60) {
-    unit = "second";
-  } else if (delta < 3600) {
+  if (delta < 3600) {
     unit = "minute";
     delta = Math.floor(delta / 60);
   } else if (delta < 86_400) {

@@ -6,11 +6,7 @@
   // Local imports
   import { config } from "../config";
   import { apiError, ynabData } from "../stores";
-  import {
-    convertNumberToMilliUnits,
-    generateId,
-    getRelativeTime,
-  } from "../utils";
+  import { convertNumberToMilliUnits, generateId } from "../utils";
   import AddTransactionForm from "./AddTransactionForm.svelte";
   import FreqTransaction from "./FreqTransaction.svelte";
 
@@ -70,13 +66,11 @@
   function getBudgets() {
     console.log("getBudgets()");
     let cachedData = ynabData.budgets.load();
-    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Budget cached");
       budgets = cachedData.data;
-      refreshTimestamp = new Date(cachedData.timestamp);
-      refreshTimes.budgets = getRelativeTime(new Date(), refreshTimestamp);
+      refreshTimes.budgets = new Date(cachedData.timestamp);
     } else {
       console.log("Calling budget endpoint");
       ynabApi.budgets
@@ -87,8 +81,7 @@
           }
           ynabData.selectedBudgetId.save(selectedBudgetId);
           budgets = res.data.budgets;
-          refreshTimestamp = ynabData.budgets.save(budgets);
-          refreshTimes.budgets = getRelativeTime(new Date(), refreshTimestamp);
+          refreshTimes.budgets = ynabData.budgets.save(budgets);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -99,13 +92,11 @@
   function getAccounts(budgetId) {
     console.log(`getAccounts(${budgetId})`);
     let cachedData = ynabData.accounts.load(budgetId);
-    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Accounts cached");
       accounts = cachedData.data;
-      refreshTimestamp = new Date(cachedData.timestamp);
-      refreshTimes.accounts = getRelativeTime(new Date(), refreshTimestamp);
+      refreshTimes.accounts = new Date(cachedData.timestamp);
     } else {
       console.log("Calling accounts endpoint");
       ynabApi.accounts
@@ -116,8 +107,7 @@
             name: account.name,
           }));
           accounts.sort((a, b) => a.name.localeCompare(b.name));
-          refreshTimestamp = ynabData.accounts.save(accounts, budgetId);
-          refreshTimes.accounts = getRelativeTime(new Date(), refreshTimestamp);
+          refreshTimes.accounts = ynabData.accounts.save(accounts, budgetId);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -128,13 +118,11 @@
   function getCategories(budgetId) {
     console.log(`getCategories(${budgetId})`);
     let cachedData = ynabData.categories.load(budgetId);
-    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Categories cached");
       categoryGroups = cachedData.data;
-      refreshTimestamp = new Date(cachedData.timestamp);
-      refreshTimes.categories = getRelativeTime(new Date(), refreshTimestamp);
+      refreshTimes.categories = new Date(cachedData.timestamp);
     } else {
       console.log("Calling categories endpoint");
       ynabApi.categories
@@ -164,10 +152,9 @@
                 })),
             }));
 
-          refreshTimestamp = ynabData.categories.save(categoryGroups, budgetId);
-          refreshTimes.categories = getRelativeTime(
-            new Date(),
-            refreshTimestamp
+          refreshTimes.categories = ynabData.categories.save(
+            categoryGroups,
+            budgetId
           );
         })
         .catch((err) => {
