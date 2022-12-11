@@ -1,7 +1,7 @@
 <script>
   // @ts-ignore
   import * as ynab from "ynab";
-  import { afterUpdate, getContext, onMount } from "svelte";
+  import { getContext, onMount } from "svelte";
 
   // Local imports
   import { config } from "../config";
@@ -16,8 +16,7 @@
 
   /** @type { ynab.BudgetSummary } */
   let selectedBudget;
-  let selectedBudgetId;
-  let storageTimestamp;
+  let selectedBudgetId = ynabData.selectedBudgetId.load().data;
   let currencyFormatter;
 
   /** @type { Array<ynab.BudgetSummary> } */
@@ -29,9 +28,11 @@
   /** @type { ynab.api } */
   const ynabApi = getApi();
 
-  $: selectedBudget = budgets.filter(
-    (budget) => budget.id === selectedBudgetId
-  )[0];
+  $: if (selectedBudgetId) {
+    selectedBudget = budgets.filter(
+      (budget) => budget.id === selectedBudgetId
+    )[0];
+  }
 
   $: currencyFormatter = currencyFormatter = new Intl.NumberFormat(undefined, {
     style: "currency",
@@ -45,6 +46,23 @@
 
   let frequentTransactions = ynabData.freqTransactions.load();
 
+  let refreshHandlers = {
+    budgets: () => {
+      ynabData.budgets.reset();
+      getBudgets();
+    },
+    accounts: () => {
+      ynabData.accounts.reset(selectedBudgetId);
+      getAccounts(selectedBudgetId);
+    },
+    categories: () => {
+      ynabData.categories.reset(selectedBudgetId);
+      getCategories(selectedBudgetId);
+    },
+  };
+
+  let refreshTimes = {};
+
   onMount(() => {
     getBudgets();
   });
@@ -52,12 +70,13 @@
   function getBudgets() {
     console.log("getBudgets()");
     let cachedData = ynabData.budgets.load();
+    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Budget cached");
-      selectedBudgetId = ynabData.selectedBudgetId.load().data;
       budgets = cachedData.data;
-      storageTimestamp = new Date(cachedData.timestamp);
+      refreshTimestamp = new Date(cachedData.timestamp);
+      refreshTimes.budgets = getRelativeTime(new Date(), refreshTimestamp);
     } else {
       console.log("Calling budget endpoint");
       ynabApi.budgets
@@ -67,9 +86,9 @@
             selectedBudgetId = res.data.default_budget.id;
           }
           ynabData.selectedBudgetId.save(selectedBudgetId);
-
           budgets = res.data.budgets;
-          storageTimestamp = ynabData.budgets.save(budgets);
+          refreshTimestamp = ynabData.budgets.save(budgets);
+          refreshTimes.budgets = getRelativeTime(new Date(), refreshTimestamp);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -79,11 +98,14 @@
 
   function getAccounts(budgetId) {
     console.log(`getAccounts(${budgetId})`);
-    let cachedData = ynabData.accounts.load();
+    let cachedData = ynabData.accounts.load(budgetId);
+    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Accounts cached");
       accounts = cachedData.data;
+      refreshTimestamp = new Date(cachedData.timestamp);
+      refreshTimes.accounts = getRelativeTime(new Date(), refreshTimestamp);
     } else {
       console.log("Calling accounts endpoint");
       ynabApi.accounts
@@ -94,7 +116,8 @@
             name: account.name,
           }));
           accounts.sort((a, b) => a.name.localeCompare(b.name));
-          ynabData.accounts.save(accounts);
+          refreshTimestamp = ynabData.accounts.save(accounts, budgetId);
+          refreshTimes.accounts = getRelativeTime(new Date(), refreshTimestamp);
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -104,11 +127,14 @@
 
   function getCategories(budgetId) {
     console.log(`getCategories(${budgetId})`);
-    let cachedData = ynabData.categories.load();
+    let cachedData = ynabData.categories.load(budgetId);
+    let refreshTimestamp;
 
     if (cachedData) {
       console.log("Categories cached");
       categoryGroups = cachedData.data;
+      refreshTimestamp = new Date(cachedData.timestamp);
+      refreshTimes.categories = getRelativeTime(new Date(), refreshTimestamp);
     } else {
       console.log("Calling categories endpoint");
       ynabApi.categories
@@ -138,7 +164,11 @@
                 })),
             }));
 
-          ynabData.categories.save(categoryGroups);
+          refreshTimestamp = ynabData.categories.save(categoryGroups, budgetId);
+          refreshTimes.categories = getRelativeTime(
+            new Date(),
+            refreshTimestamp
+          );
         })
         .catch((err) => {
           apiError.set(err.error.detail);
@@ -148,6 +178,7 @@
 
   function addTransaction(newTransaction) {
     newTransaction.id = generateId(6);
+    newTransaction.budget = selectedBudget;
     newTransaction.milliAmount = convertNumberToMilliUnits(
       newTransaction.amount
     );
@@ -195,14 +226,9 @@
     {accounts}
     {categoryGroups}
     {addTransaction}
+    {refreshHandlers}
+    {refreshTimes}
   />
-
-  <p>
-    <i>
-      Using budget: {selectedBudget.name}
-      (last updated {getRelativeTime(new Date(), storageTimestamp)})
-    </i>
-  </p>
 {:else}
   <p>Loading...</p>
 {/if}

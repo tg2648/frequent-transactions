@@ -1,5 +1,6 @@
 <script>
   import { SaveTransaction } from "ynab";
+  import { ynabData } from "../stores";
 
   // Props
   export let selectedBudgetId = null;
@@ -7,6 +8,8 @@
   export let accounts = [];
   export let categoryGroups = [];
   export let addTransaction = (newTransaction) => {};
+  export let refreshHandlers = null;
+  export let refreshTimes = null;
 
   // Transaction parameters
   let account = null;
@@ -29,7 +32,6 @@
 
   function clickHandler() {
     let newTransaction = {
-      budgetId: selectedBudgetId,
       account: account,
       category: category,
       payeeName: payeeName,
@@ -47,13 +49,22 @@
 <form>
   <div>
     <label for="budget">Budget:</label>
-    <select bind:value={selectedBudgetId} name="budget" id="budget">
+    <select
+      bind:value={selectedBudgetId}
+      on:change={() => ynabData.selectedBudgetId.save(selectedBudgetId)}
+      name="budget"
+      id="budget"
+    >
       {#each budgets as budget}
         <option value={budget.id}>
           {budget.name}
         </option>
       {/each}
     </select>
+    <button on:click|preventDefault={refreshHandlers.budgets}>
+      Refresh budgets
+    </button>
+    <span>Last updated {refreshTimes.budgets}</span>
   </div>
 
   <div>
@@ -67,6 +78,10 @@
           </option>
         {/each}
       </select>
+      <button on:click|preventDefault={refreshHandlers.accounts}>
+        Refresh accounts
+      </button>
+      <span>Last updated {refreshTimes.accounts}</span>
     {:else}
       Loading accounts...
     {/if}
@@ -87,6 +102,10 @@
           </optgroup>
         {/each}
       </select>
+      <button on:click|preventDefault={refreshHandlers.categories}>
+        Refresh categories
+      </button>
+      <span>Last updated {refreshTimes.categories}</span>
     {:else}
       Loading categories...
     {/if}

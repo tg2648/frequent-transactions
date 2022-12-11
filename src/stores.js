@@ -46,12 +46,16 @@ export const ynabData = {
     load: () => getFromLocalStorage(BUDGETS_STORAGE_KEY, DATA_VERSION) ?? null,
     save: (budgets) =>
       addToLocalStorage(BUDGETS_STORAGE_KEY, budgets, DATA_VERSION),
+    reset: () =>
+      localStorage.removeItem(`${BUDGETS_STORAGE_KEY}_${DATA_VERSION}`),
   },
 
   selectedBudgetId: {
     load: () =>
       getFromLocalStorage(SELECTED_BUDGET_ID_KEY, DATA_VERSION) ?? null,
     save: (id) => addToLocalStorage(SELECTED_BUDGET_ID_KEY, id, DATA_VERSION),
+    reset: () =>
+      localStorage.removeItem(`${SELECTED_BUDGET_ID_KEY}_${DATA_VERSION}`),
   },
 
   freqTransactions: {
@@ -59,18 +63,43 @@ export const ynabData = {
       getFromLocalStorage(FREQ_TRAN_STORAGE_KEY, DATA_VERSION)?.data ?? [],
     save: (transactions) =>
       addToLocalStorage(FREQ_TRAN_STORAGE_KEY, transactions, DATA_VERSION),
+    reset: () =>
+      localStorage.removeItem(`${FREQ_TRAN_STORAGE_KEY}_${DATA_VERSION}`),
   },
 
   accounts: {
-    load: () => getFromLocalStorage(ACCOUNTS_STORAGE_KEY, DATA_VERSION) ?? null,
-    save: (accounts) =>
-      addToLocalStorage(ACCOUNTS_STORAGE_KEY, accounts, DATA_VERSION),
+    load: (budgetId) =>
+      getFromLocalStorage(
+        `${ACCOUNTS_STORAGE_KEY}_${budgetId}`,
+        DATA_VERSION
+      ) ?? null,
+    save: (accounts, budgetId) =>
+      addToLocalStorage(
+        `${ACCOUNTS_STORAGE_KEY}_${budgetId}`,
+        accounts,
+        DATA_VERSION
+      ),
+    reset: (budgetId) =>
+      localStorage.removeItem(
+        `${ACCOUNTS_STORAGE_KEY}_${budgetId}_${DATA_VERSION}`
+      ),
   },
 
   categories: {
-    load: () =>
-      getFromLocalStorage(CATEGORIES_STORAGE_KEY, DATA_VERSION) ?? null,
-    save: (categories) =>
-      addToLocalStorage(CATEGORIES_STORAGE_KEY, categories, DATA_VERSION),
+    load: (budgetId) =>
+      getFromLocalStorage(
+        `${CATEGORIES_STORAGE_KEY}_${budgetId}`,
+        DATA_VERSION
+      ) ?? null,
+    save: (categories, budgetId) =>
+      addToLocalStorage(
+        `${CATEGORIES_STORAGE_KEY}_${budgetId}`,
+        categories,
+        DATA_VERSION
+      ),
+    reset: (budgetId) =>
+      localStorage.removeItem(
+        `${CATEGORIES_STORAGE_KEY}_${budgetId}_${DATA_VERSION}`
+      ),
   },
 };

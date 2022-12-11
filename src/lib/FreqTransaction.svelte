@@ -20,7 +20,7 @@
     loading = true;
 
     ynabApi.transactions
-      .createTransaction(transactionDetails.budgetId, {
+      .createTransaction(transactionDetails.budget.id, {
         transaction: {
           account_id: transactionDetails.account.id,
           category_id: transactionDetails.category.id,
@@ -48,6 +48,9 @@
 </script>
 
 <div class="card">
+  <span>
+    {transactionDetails.budget.name}
+  </span>
   <span>
     {transactionDetails.account.name}
   </span>
