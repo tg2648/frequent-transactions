@@ -49,3 +49,19 @@ export function getRelativeTime(t1, t2) {
   // @ts-ignore
   return rtf.format(-delta, unit);
 }
+
+/**
+ * Create a Base64-encoded string from a Unicode string
+ * https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
+ */
+export function b64EncodeUnicode(str) {
+  return window.btoa(encodeURIComponent(str));
+}
+
+/**
+ * Decode a Base64-encoded Unicode string
+ * https://developer.mozilla.org/en-US/docs/Glossary/Base64#solution_1_%E2%80%93_escaping_the_string_before_encoding_it
+ */
+export function UnicodeDecodeB64(str) {
+  return decodeURIComponent(window.atob(str));
+}

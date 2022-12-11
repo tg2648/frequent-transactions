@@ -8,11 +8,11 @@
   import { apiError, ynabData } from "../stores";
   import { convertNumberToMilliUnits, generateId } from "../utils";
   import AddTransactionForm from "./AddTransactionForm.svelte";
-  import FreqTransaction from "./FreqTransaction.svelte";
+  import FreqTransactions from "./FreqTransactions.svelte";
 
   /** @type { ynab.BudgetSummary } */
   let selectedBudget;
-  let selectedBudgetId = ynabData.selectedBudgetId.load().data;
+  let selectedBudgetId = ynabData.selectedBudgetId.load()?.data;
   let currencyFormatter;
 
   /** @type { Array<ynab.BudgetSummary> } */
@@ -165,7 +165,10 @@
 
   function addTransaction(newTransaction) {
     newTransaction.id = generateId(6);
-    newTransaction.budget = selectedBudget;
+    newTransaction.budget = {
+      id: selectedBudget.id,
+      name: selectedBudget.name,
+    };
     newTransaction.milliAmount = convertNumberToMilliUnits(
       newTransaction.amount
     );
@@ -176,27 +179,10 @@
     frequentTransactions = [...frequentTransactions, newTransaction];
     ynabData.freqTransactions.save(frequentTransactions);
   }
-
-  /**
-   * @param {number} idx Index of the removed transaction
-   */
-  function removeTransaction(idx) {
-    frequentTransactions.splice(idx, 1);
-    frequentTransactions = frequentTransactions;
-    ynabData.freqTransactions.save(frequentTransactions);
-  }
 </script>
 
 <div>
-  {#if frequentTransactions.length > 0}
-    <h3>Log transaction</h3>
-    {#each frequentTransactions as transactionDetails, idx (transactionDetails.id)}
-      <FreqTransaction
-        removeTransaction={() => removeTransaction(idx)}
-        {transactionDetails}
-      />
-    {/each}
-  {/if}
+  <FreqTransactions {frequentTransactions} />
 </div>
 
 {#if selectedBudgetId}
