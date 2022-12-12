@@ -7,6 +7,7 @@
   import { apiError } from "./stores";
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
+  import ApiError from "./lib/ApiError.svelte";
 
   /** @type { ynab.api } */
   let ynabApi = null;
@@ -66,9 +67,7 @@
   <h1>Frequent Transactions for YNAB</h1>
 
   {#if $apiError}
-    <p style="color: red;">
-      YNAB Error: {$apiError}
-    </p>
+    <ApiError error={$apiError} />
   {/if}
 
   {#if token}
