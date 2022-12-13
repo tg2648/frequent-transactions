@@ -1,4 +1,6 @@
 <script>
+  import { Button } from "sveltestrap";
+
   // Local imports
   import { ynabData } from "../stores";
   import { b64EncodeUnicode, UnicodeDecodeB64 } from "../utils";
@@ -49,6 +51,6 @@
     {/if}
   {:else}
     No transactions
-    <button on:click|preventDefault={importTransactions}>Import</button>
+    <Button color={"link"} on:click={importTransactions}>Import</Button>
   {/if}
 </div>

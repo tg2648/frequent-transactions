@@ -2,6 +2,7 @@
   // @ts-ignore
   import * as ynab from "ynab";
   import { getContext } from "svelte";
+  import { Button } from "sveltestrap";
 
   // Local imports
   import { config } from "../config";
@@ -76,8 +77,8 @@
     {transactionDetails.flag}
   </span>
 
-  <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>
-  <button on:click={removeTransaction}>X</button>
+  <Button on:click={logTransaction}>{loading ? "..." : "Log"}</Button>
+  <Button on:click={removeTransaction}>X</Button>
 </div>
 
 <style>

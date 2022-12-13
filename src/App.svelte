@@ -1,5 +1,6 @@
 <script>
   import { onMount, setContext } from "svelte";
+  import { Button } from "sveltestrap";
   import * as ynab from "ynab";
 
   // Local imports
@@ -63,7 +64,7 @@
   }
 </script>
 
-<main>
+<main class="container py-4 px-3 mx-auto">
   <h1>Frequent Transactions for YNAB</h1>
 
   {#if $apiError}
@@ -73,12 +74,12 @@
   {#if token}
     <Budgets />
     <p>
-      <button on:click|preventDefault={logout}> Logout </button>
+      <Button color={"secondary"} on:click={logout}>Logout</Button>
     </p>
   {:else}
-    <button on:click|preventDefault={authorizeWithYNAB}>
+    <Button color={"primary"} on:click={authorizeWithYNAB}>
       Authorize with YNAB
-    </button>
+    </Button>
     <Footer />
   {/if}
 </main>

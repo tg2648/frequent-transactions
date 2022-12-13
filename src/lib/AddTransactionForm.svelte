@@ -1,5 +1,6 @@
 <script>
   import { SaveTransaction } from "ynab";
+  import { Button } from "sveltestrap";
 
   // Local imports
   import { ynabData, currTime } from "../stores";
@@ -33,7 +34,9 @@
     [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
   };
 
-  function clickHandler() {
+  function clickHandler(event) {
+    event.preventDefault();
+
     let newTransaction = {
       account: account,
       category: category,
@@ -47,7 +50,6 @@
 
     addTransaction(newTransaction);
   }
-  console.log($currTime);
 </script>
 
 <form>
@@ -65,9 +67,7 @@
         </option>
       {/each}
     </select>
-    <button on:click|preventDefault={refreshHandlers.budgets}>
-      Refresh budgets
-    </button>
+    <Button on:click={refreshHandlers.budgets}>Refresh budgets</Button>
     {#if refreshTimes.budgets}
       <span>
         Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
@@ -86,9 +86,7 @@
           </option>
         {/each}
       </select>
-      <button on:click|preventDefault={refreshHandlers.accounts}>
-        Refresh accounts
-      </button>
+      <Button on:click={refreshHandlers.accounts}>Refresh accounts</Button>
       {#if refreshTimes.accounts}
         <span>
           Last updated {getRelativeTime($currTime, refreshTimes.accounts)}
@@ -114,9 +112,7 @@
           </optgroup>
         {/each}
       </select>
-      <button on:click|preventDefault={refreshHandlers.categories}>
-        Refresh categories
-      </button>
+      <Button on:click={refreshHandlers.categories}>Refresh categories</Button>
       {#if refreshTimes.categories}
         <span>
           Last updated {getRelativeTime($currTime, refreshTimes.categories)}
@@ -188,7 +184,7 @@
     </span>
   </div>
 
-  <button on:click|preventDefault={clickHandler} type="submit">Add</button>
+  <Button on:click={(event) => clickHandler(event)} type="submit">Add</Button>
 </form>
 
 <style>
