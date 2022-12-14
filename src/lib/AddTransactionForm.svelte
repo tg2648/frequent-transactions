@@ -61,13 +61,11 @@
 </script>
 
 <Form>
-  <FormGroup>
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <Label for="budget">Budget</Label>
-      </div>
-      <div class="col-auto">
-        <div class="input-group">
+  <!-- Refactor below into a component slots -->
+  <div class="row align-items-center">
+    <div class="col">
+      <div class="input-group">
+        <FormGroup floating label="Budget">
           <Input
             type="select"
             name="budget"
@@ -80,20 +78,25 @@
               </option>
             {/each}
           </Input>
-          <Button outline size="sm" on:click={refreshHandlers.budgets}>
-            <Icon name="arrow-clockwise" />
-          </Button>
-        </div>
-      </div>
-      <div class="col-auto">
-        {#if refreshTimes.budgets}
-          <FormText>
-            Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
-          </FormText>
-        {/if}
+        </FormGroup>
+        <Button
+          outline
+          size="sm"
+          class="mb-3"
+          on:click={refreshHandlers.budgets}
+        >
+          <Icon name="arrow-clockwise" />
+        </Button>
       </div>
     </div>
-  </FormGroup>
+    <div class="col-auto">
+      {#if refreshTimes.budgets}
+        <FormText>
+          Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
+        </FormText>
+      {/if}
+    </div>
+  </div>
 
   <FormGroup>
     {#if accounts.length > 0}
