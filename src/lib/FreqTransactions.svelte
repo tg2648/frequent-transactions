@@ -42,7 +42,7 @@
         {transactionDetails}
       />
     {/each}
-    <button on:click|preventDefault={exportTransactions}>Export</button>
+    <Button on:click={exportTransactions}>Export</Button>
     {#if encodedTransactions}
       <details>
         <summary>Copy the code below</summary>
