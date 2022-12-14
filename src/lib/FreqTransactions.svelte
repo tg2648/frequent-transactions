@@ -50,7 +50,11 @@
       </details>
     {/if}
   {:else}
-    No transactions
-    <Button color={"link"} on:click={importTransactions}>Import</Button>
+    <div>No transactions</div>
+    <div>
+      <Button color={"link"} on:click={importTransactions}>
+        Import transactions exported from another device
+      </Button>
+    </div>
   {/if}
 </div>

@@ -64,6 +64,13 @@
   }
 </script>
 
+<svelte:head>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+  />
+</svelte:head>
+
 <main class="container py-4 px-3 mx-auto">
   <h1>Frequent Transactions for YNAB</h1>
 

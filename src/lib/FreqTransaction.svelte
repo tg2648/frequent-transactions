@@ -56,12 +56,16 @@
     {transactionDetails.account.name}
   </span>
   <span>
-    {transactionDetails.category.name}
+    {transactionDetails.category?.name ?? "No category"}
   </span>
   <span>
     {transactionDetails.payeeName}
   </span>
-  <span class={transactionDetails.milliAmount < 0 ? "negative" : "positive"}>
+  <span
+    class={transactionDetails.milliAmount < 0
+      ? "amount-negative"
+      : "amount-positive"}
+  >
     {transactionDetails.displayAmount}
   </span>
   <span>
@@ -87,13 +91,5 @@
     border-radius: 2px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
     padding: 1em;
-  }
-
-  .positive {
-    color: #6d9f38;
-  }
-
-  .negative {
-    color: #e26136;
   }
 </style>
