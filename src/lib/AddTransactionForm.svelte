@@ -1,18 +1,11 @@
 <script>
   import { SaveTransaction } from "ynab";
-  import {
-    Button,
-    Form,
-    FormGroup,
-    FormText,
-    Input,
-    Label,
-    Icon,
-  } from "sveltestrap";
+  import { Button, Form, FormGroup, FormText, Input, Icon } from "sveltestrap";
 
   // Local imports
   import { currTime } from "../stores";
   import { getRelativeTime } from "../utils";
+  import FormFloatingInputGroup from "./FormFloatingInputGroup.svelte";
 
   // Props
   export let selectedBudgetId;
@@ -31,7 +24,7 @@
   let memo = "";
   let cleared = false;
   let approved = true;
-  let flag = "";
+  let flag = null;
 
   let flagOptions = {
     [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
@@ -61,199 +54,145 @@
 </script>
 
 <Form>
-  <!-- Refactor below into a component slots -->
-  <div class="row align-items-center">
-    <div class="col">
-      <div class="input-group">
-        <FormGroup floating label="Budget">
-          <Input
-            type="select"
-            name="budget"
-            id="budget"
-            bind:value={selectedBudgetId}
-          >
-            {#each budgets as budget}
-              <option value={budget.id}>
-                {budget.name}
+  <FormFloatingInputGroup
+    label={`Budget (list refreshed ${getRelativeTime(
+      $currTime,
+      refreshTimes.budgets
+    )})`}
+  >
+    <Input
+      slot="input"
+      type="select"
+      name="budget"
+      id="budget"
+      bind:value={selectedBudgetId}
+    >
+      {#each budgets as budget}
+        <option value={budget.id}>
+          {budget.name}
+        </option>
+      {/each}
+    </Input>
+    <Button
+      slot="right-addon"
+      outline
+      size="sm"
+      on:click={refreshHandlers.budgets}
+    >
+      <Icon name="arrow-clockwise" />
+    </Button>
+  </FormFloatingInputGroup>
+
+  <FormFloatingInputGroup label="Payee">
+    <Input
+      slot="input"
+      bind:value={payeeName}
+      id="payee"
+      type="text"
+      name="payee"
+    />
+    <FormText slot="text">
+      YNAB will create a new payee if a matching payee is not found.
+    </FormText>
+  </FormFloatingInputGroup>
+
+  {#if categoryGroups.length > 0}
+    <FormFloatingInputGroup
+      label={`Category (list refreshed ${getRelativeTime(
+        $currTime,
+        refreshTimes.categories
+      )})`}
+    >
+      <Input
+        slot="input"
+        type="select"
+        name="category"
+        id="category"
+        bind:value={category}
+      >
+        <option value="" selected />
+        {#each categoryGroups as categoryGroup}
+          <optgroup label={categoryGroup.name}>
+            {#each categoryGroup.categories as category}
+              <option value={category}>
+                {category.name}
               </option>
             {/each}
-          </Input>
-        </FormGroup>
-        <Button
-          outline
-          size="sm"
-          class="mb-3"
-          on:click={refreshHandlers.budgets}
-        >
-          <Icon name="arrow-clockwise" />
-        </Button>
-      </div>
-    </div>
-    <div class="col-auto">
-      {#if refreshTimes.budgets}
-        <FormText>
-          Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
-        </FormText>
-      {/if}
-    </div>
-  </div>
+          </optgroup>
+        {/each}
+      </Input>
+      <Button
+        slot="right-addon"
+        outline
+        size="sm"
+        on:click={refreshHandlers.categories}
+      >
+        <Icon name="arrow-clockwise" />
+      </Button>
+    </FormFloatingInputGroup>
+  {:else}
+    Loading accounts...
+  {/if}
 
-  <FormGroup>
-    {#if accounts.length > 0}
-      <div class="row align-items-center">
-        <div class="col-auto">
-          <Label for="account">Account</Label>
-        </div>
-        <div class="col-auto">
-          <div class="input-group">
-            <Input
-              type="select"
-              name="account"
-              id="account"
-              bind:value={account}
-            >
-              <option value="" selected />
-              {#each accounts as account}
-                <option value={account}>
-                  {account.name}
-                </option>
-              {/each}
-            </Input>
-            <Button outline size="sm" on:click={refreshHandlers.accounts}>
-              <Icon name="arrow-clockwise" />
-            </Button>
-          </div>
-        </div>
-        <div class="col-auto">
-          {#if refreshTimes.accounts}
-            <FormText>
-              Last updated {getRelativeTime($currTime, refreshTimes.accounts)}
-            </FormText>
-          {/if}
-        </div>
-      </div>
-    {:else}
-      Loading accounts...
-    {/if}
-  </FormGroup>
+  {#if accounts.length > 0}
+    <FormFloatingInputGroup
+      label={`Account (list refreshed ${getRelativeTime(
+        $currTime,
+        refreshTimes.accounts
+      )})`}
+    >
+      <Input
+        slot="input"
+        type="select"
+        name="account"
+        id="account"
+        bind:value={account}
+      >
+        {#each accounts as account}
+          <option value={account}>
+            {account.name}
+          </option>
+        {/each}
+      </Input>
+      <Button
+        slot="right-addon"
+        outline
+        size="sm"
+        on:click={refreshHandlers.accounts}
+      >
+        <Icon name="arrow-clockwise" />
+      </Button>
+    </FormFloatingInputGroup>
+  {:else}
+    Loading accounts...
+  {/if}
 
-  <FormGroup>
-    {#if categoryGroups.length > 0}
-      <div class="row align-items-center">
-        <div class="col-auto">
-          <Label for="category">Category</Label>
-        </div>
-        <div class="col-auto">
-          <div class="input-group">
-            <Input
-              type="select"
-              name="category"
-              id="category"
-              bind:value={category}
-            >
-              <option value="" selected />
-              {#each categoryGroups as categoryGroup}
-                <optgroup label={categoryGroup.name}>
-                  {#each categoryGroup.categories as category}
-                    <option value={category}>
-                      {category.name}
-                    </option>
-                  {/each}
-                </optgroup>
-              {/each}
-            </Input>
-            <Button outline size="sm" on:click={refreshHandlers.categories}>
-              <Icon name="arrow-clockwise" />
-            </Button>
-          </div>
-        </div>
-        <div class="col-auto">
-          {#if refreshTimes.categories}
-            <FormText>
-              Last updated {getRelativeTime($currTime, refreshTimes.categories)}
-            </FormText>
-          {/if}
-        </div>
-      </div>
-    {:else}
-      Loading categories...
-    {/if}
-  </FormGroup>
+  <FormFloatingInputGroup label="Amount">
+    <Input
+      slot="input"
+      bind:value={amount}
+      name="amount"
+      id="amount"
+      type="number"
+      step="0.01"
+      class={amount >= 0 ? "amount-positive" : "amount-negative"}
+    />
+  </FormFloatingInputGroup>
 
-  <FormGroup>
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <Label for="payee">Payee</Label>
-      </div>
-      <div class="col-auto">
-        <Input bind:value={payeeName} name="payee" id="payee" type="text" />
-        <FormText>
-          YNAB will create a new payee if a matching payee is not found.
-        </FormText>
-      </div>
-    </div>
-  </FormGroup>
+  <FormFloatingInputGroup label="Memo">
+    <Input slot="input" bind:value={memo} name="memo" id="memo" type="text" />
+  </FormFloatingInputGroup>
 
-  <FormGroup>
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <Label for="amount">Amount</Label>
-      </div>
-      <div class="col-auto">
-        <Input
-          bind:value={amount}
-          name="amount"
-          id="amount"
-          type="number"
-          step="0.01"
-          class={amount >= 0 ? "amount-positive" : "amount-negative"}
-          placeholder="0.00"
-        />
-      </div>
-    </div>
-  </FormGroup>
-
-  <FormGroup>
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <Label for="memo">Memo</Label>
-      </div>
-      <div class="col-auto">
-        <Input bind:value={memo} name="memo" id="memo" type="text" />
-      </div>
-    </div>
-  </FormGroup>
-
-  <FormGroup>
-    <div class="row align-items-center">
-      <div class="col-auto">
-        <label for="flags">Flags</label>
-      </div>
-      <div class="col-auto">
-        <span id="flags">
-          <input
-            bind:group={flag}
-            style:--flagColor="black"
-            class="flag flag-default"
-            type="radio"
-            name="flag"
-            checked
-          />
-          {#each Object.entries(flagOptions) as [option, color]}
-            <input
-              bind:group={flag}
-              style:--flagColor={color}
-              class="flag flag-option"
-              type="radio"
-              name="flag"
-              value={option}
-              aria-label={`${option} flag`}
-            />
-          {/each}
-        </span>
-      </div>
-    </div>
-  </FormGroup>
+  <FormFloatingInputGroup label="Flag">
+    <Input slot="input" type="select" name="flag" id="flag" bind:value={flag}>
+      <option selected value={null} />
+      {#each Object.entries(flagOptions) as [option, color]}
+        <option value={option} style:color style:font-weight="bold">
+          {option.toUpperCase()}
+        </option>
+      {/each}
+    </Input>
+  </FormFloatingInputGroup>
 
   <FormGroup>
     <div class="row align-items-center">
@@ -300,24 +239,3 @@
 
   <Button on:click={clickHandler} color="primary" type="submit">Add</Button>
 </Form>
-
-<style>
-  .flag {
-    appearance: none;
-
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-
-    border: 2px solid var(--flagColor);
-    transition: 0.05s all linear;
-    margin-right: 5px;
-
-    position: relative;
-    top: 4px;
-  }
-
-  .flag-option:checked {
-    border: 8px solid var(--flagColor);
-  }
-</style>

@@ -80,9 +80,9 @@
 
   {#if token}
     <Budgets />
-    <p>
+    <div class="mt-3">
       <Button color={"secondary"} on:click={logout}>Logout</Button>
-    </p>
+    </div>
   {:else}
     <Button color={"primary"} on:click={authorizeWithYNAB}>
       Authorize with YNAB
