@@ -35,26 +35,47 @@
     [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
   };
 
+  let formErrors = {};
+
+  let amountClassValue;
+  let amountClassError;
+  $: amountClassValue = amount >= 0 ? "amount-positive" : "amount-negative";
+  $: amountClassError = formErrors?.amount ? "is-invalid" : "";
+
   function clickHandler(event) {
     event.preventDefault();
+    formErrors = {};
 
-    let newTransaction = {
-      account: account,
-      category: category,
-      payeeName: payeeName,
-      amount: amount,
-      memo: memo,
-      cleared: cleared,
-      approved: approved,
-      flag: flag,
-    };
+    console.log(formErrors);
+    if (amount === null) {
+      formErrors.amount = "Amount required";
+    }
 
-    addTransaction(newTransaction);
+    if (account === null) {
+      formErrors.account = "Account required";
+    }
+
+    if (Object.keys(formErrors).length === 0) {
+      let newTransaction = {
+        account: account,
+        category: category,
+        payeeName: payeeName,
+        amount: amount,
+        memo: memo,
+        cleared: cleared,
+        approved: approved,
+        flag: flag,
+      };
+
+      addTransaction(newTransaction);
+      formErrors = {};
+    }
   }
 </script>
 
 <Form>
   <FormFloatingInputGroup
+    id="budget"
     label={`Budget (list refreshed ${getRelativeTime(
       $currTime,
       refreshTimes.budgets
@@ -83,7 +104,7 @@
     </Button>
   </FormFloatingInputGroup>
 
-  <FormFloatingInputGroup label="Payee">
+  <FormFloatingInputGroup id="payee" label="Payee">
     <Input
       slot="input"
       bind:value={payeeName}
@@ -98,6 +119,7 @@
 
   {#if categoryGroups.length > 0}
     <FormFloatingInputGroup
+      id="category"
       label={`Category (list refreshed ${getRelativeTime(
         $currTime,
         refreshTimes.categories
@@ -136,6 +158,8 @@
 
   {#if accounts.length > 0}
     <FormFloatingInputGroup
+      id="account"
+      error={formErrors?.account}
       label={`Account (list refreshed ${getRelativeTime(
         $currTime,
         refreshTimes.accounts
@@ -145,6 +169,7 @@
         slot="input"
         type="select"
         name="account"
+        class={formErrors?.account ? "is-invalid" : ""}
         id="account"
         bind:value={account}
       >
@@ -167,7 +192,7 @@
     Loading accounts...
   {/if}
 
-  <FormFloatingInputGroup label="Amount">
+  <FormFloatingInputGroup error={formErrors?.amount} id="amount" label="Amount">
     <Input
       slot="input"
       bind:value={amount}
@@ -175,15 +200,15 @@
       id="amount"
       type="number"
       step="0.01"
-      class={amount >= 0 ? "amount-positive" : "amount-negative"}
+      class={`${amountClassValue} ${amountClassError}`}
     />
   </FormFloatingInputGroup>
 
-  <FormFloatingInputGroup label="Memo">
+  <FormFloatingInputGroup id="memo" label="Memo">
     <Input slot="input" bind:value={memo} name="memo" id="memo" type="text" />
   </FormFloatingInputGroup>
 
-  <FormFloatingInputGroup label="Flag">
+  <FormFloatingInputGroup id="flag" label="Flag">
     <Input slot="input" type="select" name="flag" id="flag" bind:value={flag}>
       <option selected value={null} />
       {#each Object.entries(flagOptions) as [option, color]}
