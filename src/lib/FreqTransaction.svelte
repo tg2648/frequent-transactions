@@ -46,7 +46,11 @@
         console.log("Transaction logged!");
       })
       .catch((err) => {
-        apiError.set(err.error.detail);
+        if (err.error.name === "unauthorized") {
+          apiError.set("Login expired. Please log out and log back in again.");
+        } else {
+          apiError.set(err.error.detail);
+        }
       })
       .finally(() => {
         loading = false;
