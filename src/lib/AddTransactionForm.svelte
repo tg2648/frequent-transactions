@@ -64,7 +64,7 @@
 </script>
 
 <div class="row">
-  <div class="col-lg-5">
+  <div class="col-lg-7">
     <Form>
       <FormFloatingInputGroup
         id="budget"
