@@ -190,7 +190,7 @@
 </div>
 
 {#if selectedBudgetId}
-  <h3>Add frequent transaction</h3>
+  <h4>Add frequent transaction</h4>
 
   <AddTransactionForm
     bind:selectedBudgetId

@@ -35,7 +35,7 @@
 
 <div>
   {#if frequentTransactions.length > 0}
-    <h3>Log transaction</h3>
+    <h4>Log transaction</h4>
     {#each frequentTransactions as transactionDetails, idx (transactionDetails.id)}
       <FreqTransaction
         removeTransaction={() => removeTransaction(idx)}
