@@ -1,4 +1,6 @@
 <script>
+  import { Button } from "sveltestrap";
+
   // Local imports
   import { ynabData } from "../stores";
   import { b64EncodeUnicode, UnicodeDecodeB64 } from "../utils";
@@ -33,22 +35,25 @@
 
 <div>
   {#if frequentTransactions.length > 0}
-    <h3>Log transaction</h3>
+    <h4>Log transaction</h4>
     {#each frequentTransactions as transactionDetails, idx (transactionDetails.id)}
       <FreqTransaction
         removeTransaction={() => removeTransaction(idx)}
         {transactionDetails}
       />
     {/each}
-    <button on:click|preventDefault={exportTransactions}>Export</button>
+    <!-- <Button on:click={exportTransactions}>Export</Button>
     {#if encodedTransactions}
       <details>
         <summary>Copy the code below</summary>
         <textarea readonly rows="5" cols="33">{encodedTransactions}</textarea>
       </details>
-    {/if}
+    {/if} -->
   {:else}
-    No transactions
-    <button on:click|preventDefault={importTransactions}>Import</button>
+    <!-- <div>
+      <Button color={"link"} on:click={importTransactions}>
+        Import transactions exported from another device
+      </Button>
+    </div> -->
   {/if}
 </div>

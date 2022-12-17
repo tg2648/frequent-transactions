@@ -12,7 +12,7 @@
 
   /** @type { ynab.BudgetSummary } */
   let selectedBudget;
-  let selectedBudgetId = ynabData.selectedBudgetId.load()?.data;
+  let selectedBudgetId;
   let currencyFormatter;
 
   /** @type { Array<ynab.BudgetSummary> } */
@@ -43,15 +43,18 @@
   let frequentTransactions = ynabData.freqTransactions.load();
 
   let refreshHandlers = {
-    budgets: () => {
+    budgets: (event) => {
+      event.preventDefault();
       ynabData.budgets.reset();
       getBudgets();
     },
-    accounts: () => {
+    accounts: (event) => {
+      event.preventDefault();
       ynabData.accounts.reset(selectedBudgetId);
       getAccounts(selectedBudgetId);
     },
-    categories: () => {
+    categories: (event) => {
+      event.preventDefault();
       ynabData.categories.reset(selectedBudgetId);
       getCategories(selectedBudgetId);
     },
@@ -70,6 +73,7 @@
     if (cachedData) {
       console.log("Budget cached");
       budgets = cachedData.data;
+      selectedBudgetId = ynabData.selectedBudgetId.load().data;
       refreshTimes.budgets = new Date(cachedData.timestamp);
     } else {
       console.log("Calling budget endpoint");
@@ -186,12 +190,7 @@
 </div>
 
 {#if selectedBudgetId}
-  <h3>Add frequent transaction</h3>
-
-  <p>
-    YNAB will find an existing payee matching the provided name or create a new
-    payee.
-  </p>
+  <h4>Add frequent transaction</h4>
 
   <AddTransactionForm
     bind:selectedBudgetId

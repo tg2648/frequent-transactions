@@ -2,10 +2,12 @@
   // @ts-ignore
   import * as ynab from "ynab";
   import { getContext } from "svelte";
+  import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
   import { config } from "../config";
   import { apiError } from "../stores";
+  import { ynabFlagColors } from "../utils";
 
   // Props
   export let transactionDetails, removeTransaction;
@@ -15,6 +17,11 @@
   const ynabApi = getApi();
 
   let loading;
+  let isOpen = false;
+  let amountClass =
+    transactionDetails.milliAmount < 0 ? "amount-negative" : "amount-positive";
+  let approvedText = transactionDetails.approved ? "Approved" : "Not approved";
+  let clearedText = transactionDetails.cleared ? "Cleared" : "Not cleared";
 
   function logTransaction() {
     loading = true;
@@ -39,7 +46,11 @@
         console.log("Transaction logged!");
       })
       .catch((err) => {
-        apiError.set(err.error.detail);
+        if (err.error.name === "unauthorized") {
+          apiError.set("Login expired. Please log out and log back in again.");
+        } else {
+          apiError.set(err.error.detail);
+        }
       })
       .finally(() => {
         loading = false;
@@ -47,52 +58,97 @@
   }
 </script>
 
-<div class="card">
-  <span>
-    {transactionDetails.budget.name}
-  </span>
-  <span>
-    {transactionDetails.account.name}
-  </span>
-  <span>
-    {transactionDetails.category.name}
-  </span>
-  <span>
-    {transactionDetails.payeeName}
-  </span>
-  <span class={transactionDetails.milliAmount < 0 ? "negative" : "positive"}>
-    {transactionDetails.displayAmount}
-  </span>
-  <span>
-    {transactionDetails.memo}
-  </span>
-  <span>
-    {transactionDetails.cleared}
-  </span>
-  <span>
-    {transactionDetails.approved}
-  </span>
-  <span>
-    {transactionDetails.flag}
-  </span>
-
-  <button on:click={logTransaction}>{loading ? "..." : "Log"}</button>
-  <button on:click={removeTransaction}>X</button>
+<div class="row">
+  <div class="col-lg-7">
+    <div
+      style:--flag-color={ynabFlagColors[transactionDetails.flag]}
+      class:flag-border={transactionDetails.flag}
+      class="card text-bg-light mb-3"
+    >
+      <div class="card-body">
+        <!-- Upper card -->
+        <div class="d-flex">
+          <Button
+            style="margin-left: -15px"
+            color={"light"}
+            on:click={() => (isOpen = !isOpen)}
+          >
+            {#if isOpen}
+              <Icon name="chevron-down" />
+            {:else}
+              <Icon name="chevron-right" />
+            {/if}
+          </Button>
+          <div>
+            <div>
+              {transactionDetails.payeeName ?? "No payee"}
+            </div>
+            <div class="text-muted">
+              {#if transactionDetails.category}
+                {transactionDetails.category.group}:
+                {transactionDetails.category.name}
+              {:else}
+                No category
+              {/if}
+            </div>
+          </div>
+          <div class="ms-auto d-inline-flex align-items-center">
+            <strong class={amountClass}>
+              {transactionDetails.displayAmount}
+            </strong>
+            <Button class="ms-2" color="success" on:click={logTransaction}>
+              {loading ? "..." : "Log"}
+            </Button>
+            <Button
+              class="ms-2"
+              color="danger"
+              outline
+              on:click={removeTransaction}
+            >
+              <Icon name="trash" />
+            </Button>
+          </div>
+        </div>
+        <!-- Lower card -->
+        <Collapse {isOpen} class="mt-2">
+          <div class="ms-4">
+            <div>
+              <span class="text-muted">Budget:</span>
+              {transactionDetails.budget.name}
+            </div>
+            <div>
+              <span class="text-muted">Account:</span>
+              {transactionDetails.account.name}
+            </div>
+            <div class="my-1">
+              {transactionDetails.memo}
+            </div>
+            <div>
+              <span
+                class="badge rounded-pill"
+                class:text-bg-success={transactionDetails.cleared}
+                class:text-bg-secondary={!transactionDetails.cleared}
+              >
+                {clearedText}
+              </span>
+              <span
+                class="badge rounded-pill"
+                class:text-bg-success={transactionDetails.approved}
+                class:text-bg-secondary={!transactionDetails.approved}
+              >
+                {approvedText}
+              </span>
+            </div>
+          </div>
+        </Collapse>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-  .card {
-    border: 1px solid #aaa;
-    border-radius: 2px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 1em;
-  }
-
-  .positive {
-    color: #6d9f38;
-  }
-
-  .negative {
-    color: #e26136;
+  .flag-border {
+    border-left-width: 5px;
+    border-left-color: var(--flag-color);
   }
 </style>

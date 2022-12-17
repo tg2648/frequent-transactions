@@ -1,0 +1,16 @@
+:root {
+  --ynabGreen: #6d9f38;
+  --ynabRed: #e26136;
+  --ynabBlue: #25384F;
+}
+
+.amount-positive {
+   color: var(--ynabGreen) !important;
+ }
+
+.amount-negative {
+   color: var(--ynabRed) !important;
+ }
+
+// Import all of Bootstrap's CSS
+@import "bootstrap/scss/bootstrap";

@@ -1,5 +1,6 @@
 <script>
   import { onMount, setContext } from "svelte";
+  import { Button, Icon, Offcanvas } from "sveltestrap";
   import * as ynab from "ynab";
 
   // Local imports
@@ -12,6 +13,9 @@
   /** @type { ynab.api } */
   let ynabApi = null;
   let token = null;
+
+  let offcanvasOpen = false;
+  const offcanvasToggle = () => (offcanvasOpen = !offcanvasOpen);
 
   // Make YNAB api available to other components
   setContext(config.context_key, {
@@ -59,26 +63,73 @@
     token = null;
     apiError.set(null);
     sessionStorage.clear();
-    localStorage.clear();
   }
 </script>
 
-<main>
-  <h1>Frequent Transactions for YNAB</h1>
+<svelte:head>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+  />
+</svelte:head>
 
+<main class="container py-4 px-3 mx-auto">
   {#if $apiError}
     <ApiError error={$apiError} />
   {/if}
 
   {#if token}
+    <nav class="navbar navbar-expand-lg bg-light mb-2">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">Frequent Transactions for YNAB</span>
+        <div class="ms-auto me-2">
+          <Button
+            outline
+            class="border-0 fs-2"
+            style="--bs-btn-padding-y: 0rem;"
+            on:click={offcanvasToggle}
+          >
+            <Icon name="list" />
+          </Button>
+        </div>
+      </div>
+    </nav>
+
     <Budgets />
-    <p>
-      <button on:click|preventDefault={logout}> Logout </button>
-    </p>
+
+    <Offcanvas isOpen={offcanvasOpen} toggle={offcanvasToggle} placement="end">
+      <div class="d-grid gap-2">
+        <Button color={"warning"} on:click={logout}>Logout</Button>
+        <hr class="mb-1" />
+        <div class="d-flex justify-content-center fs-4">
+          <a
+            href="https://github.com/tg2648/frequent-transactions"
+            rel="noreferrer"
+            target="_blank"><Icon name="github" style="color: black;" /></a
+          >
+        </div>
+      </div>
+    </Offcanvas>
   {:else}
-    <button on:click|preventDefault={authorizeWithYNAB}>
-      Authorize with YNAB
-    </button>
+    <h1 class="display-3">
+      Frequent Transactions for <span class="header">YNAB</span>
+    </h1>
+
+    <div class="my-5 d-flex justify-content-center">
+      <Button color={"primary"} on:click={authorizeWithYNAB}>
+        Authorize with YNAB
+      </Button>
+    </div>
+
     <Footer />
   {/if}
 </main>
+
+<style>
+  .header {
+    font-family: "Sense", Helvetica, Arial, sans-serif;
+    color: var(--ynabBlue);
+    /* font-size: 2.25rem; */
+    font-weight: 900;
+  }
+</style>

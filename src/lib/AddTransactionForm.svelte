@@ -1,12 +1,14 @@
 <script>
-  import { SaveTransaction } from "ynab";
+  import { Button, Form, FormGroup, FormText, Input, Icon } from "sveltestrap";
 
   // Local imports
-  import { ynabData, currTime } from "../stores";
+  import { currTime } from "../stores";
   import { getRelativeTime } from "../utils";
+  import { ynabFlagColors } from "../utils";
+  import FormFloatingInputGroup from "./FormFloatingInputGroup.svelte";
 
   // Props
-  export let selectedBudgetId = null;
+  export let selectedBudgetId;
   export let budgets = [];
   export let accounts = [];
   export let categoryGroups = [];
@@ -16,198 +18,265 @@
 
   // Transaction parameters
   let account = null;
-  let category = null;
-  let payeeName = "";
+  let category = null; // Includes category group information
+  let payeeName = null;
   let amount = null;
+  let flag = null;
   let memo = "";
   let cleared = false;
   let approved = true;
-  let flag = "";
 
-  let flagOptions = {
-    [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
-    [SaveTransaction.FlagColorEnum.Orange]: "#ff9f0a",
-    [SaveTransaction.FlagColorEnum.Yellow]: "#ffd60a",
-    [SaveTransaction.FlagColorEnum.Green]: "#32d74b",
-    [SaveTransaction.FlagColorEnum.Blue]: "#64d2ff",
-    [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
-  };
+  let formErrors = {};
+  let amountClassValue;
+  let amountClassError;
+  $: amountClassValue = amount >= 0 ? "amount-positive" : "amount-negative";
+  $: amountClassError = formErrors?.amount ? "is-invalid" : "";
 
-  function clickHandler() {
-    let newTransaction = {
-      account: account,
-      category: category,
-      payeeName: payeeName,
-      amount: amount,
-      memo: memo,
-      cleared: cleared,
-      approved: approved,
-      flag: flag,
-    };
+  function clickHandler(event) {
+    event.preventDefault();
+    formErrors = {};
 
-    addTransaction(newTransaction);
+    console.log(formErrors);
+    if (amount === null) {
+      formErrors.amount = "Amount required";
+    }
+
+    if (account === null) {
+      formErrors.account = "Account required";
+    }
+
+    if (Object.keys(formErrors).length === 0) {
+      let newTransaction = {
+        account: account,
+        category: category,
+        payeeName: payeeName,
+        amount: amount,
+        memo: memo,
+        cleared: cleared,
+        approved: approved,
+        flag: flag,
+      };
+
+      addTransaction(newTransaction);
+      formErrors = {};
+    }
   }
-  console.log($currTime);
 </script>
 
-<form>
-  <div>
-    <label for="budget">Budget:</label>
-    <select
-      bind:value={selectedBudgetId}
-      on:change={() => ynabData.selectedBudgetId.save(selectedBudgetId)}
-      name="budget"
-      id="budget"
-    >
-      {#each budgets as budget}
-        <option value={budget.id}>
-          {budget.name}
-        </option>
-      {/each}
-    </select>
-    <button on:click|preventDefault={refreshHandlers.budgets}>
-      Refresh budgets
-    </button>
-    {#if refreshTimes.budgets}
-      <span>
-        Last updated {getRelativeTime($currTime, refreshTimes.budgets)}
-      </span>
-    {/if}
-  </div>
+<div class="row">
+  <div class="col-lg-7">
+    <Form>
+      <FormFloatingInputGroup
+        id="budget"
+        label={`Budget (list refreshed ${getRelativeTime(
+          $currTime,
+          refreshTimes.budgets
+        )})`}
+      >
+        <Input
+          slot="input"
+          type="select"
+          name="budget"
+          id="budget"
+          bind:value={selectedBudgetId}
+        >
+          {#each budgets as budget}
+            <option value={budget.id}>
+              {budget.name}
+            </option>
+          {/each}
+        </Input>
+        <Button
+          slot="right-addon"
+          outline
+          size="sm"
+          on:click={refreshHandlers.budgets}
+        >
+          <Icon name="arrow-clockwise" />
+        </Button>
+      </FormFloatingInputGroup>
 
-  <div>
-    {#if accounts.length > 0}
-      <label for="account">Account:</label>
-      <select bind:value={account} name="account" id="account">
-        <option value="" selected />
-        {#each accounts as account}
-          <option value={account}>
-            {account.name}
-          </option>
-        {/each}
-      </select>
-      <button on:click|preventDefault={refreshHandlers.accounts}>
-        Refresh accounts
-      </button>
-      {#if refreshTimes.accounts}
-        <span>
-          Last updated {getRelativeTime($currTime, refreshTimes.accounts)}
-        </span>
+      <FormFloatingInputGroup id="payee" label="Payee">
+        <Input
+          slot="input"
+          bind:value={payeeName}
+          id="payee"
+          type="text"
+          name="payee"
+        />
+        <FormText slot="text">
+          YNAB will create a new payee if a matching payee is not found.
+        </FormText>
+      </FormFloatingInputGroup>
+
+      {#if categoryGroups.length > 0}
+        <FormFloatingInputGroup
+          id="category"
+          label={`Category (list refreshed ${getRelativeTime(
+            $currTime,
+            refreshTimes.categories
+          )})`}
+        >
+          <Input
+            slot="input"
+            type="select"
+            name="category"
+            id="category"
+            bind:value={category}
+          >
+            <option value="" selected />
+            {#each categoryGroups as categoryGroup}
+              <optgroup label={categoryGroup.name}>
+                {#each categoryGroup.categories as category}
+                  <option
+                    value={{
+                      name: category.name,
+                      id: category.id,
+                      group: categoryGroup.name,
+                    }}
+                  >
+                    {category.name}
+                  </option>
+                {/each}
+              </optgroup>
+            {/each}
+          </Input>
+          <Button
+            slot="right-addon"
+            outline
+            size="sm"
+            on:click={refreshHandlers.categories}
+          >
+            <Icon name="arrow-clockwise" />
+          </Button>
+        </FormFloatingInputGroup>
+      {:else}
+        Loading accounts...
       {/if}
-    {:else}
-      Loading accounts...
-    {/if}
-  </div>
 
-  <div>
-    {#if categoryGroups.length > 0}
-      <label for="category">Category:</label>
-      <select bind:value={category} name="category" id="category">
-        <option value="" selected />
-        {#each categoryGroups as categoryGroup}
-          <optgroup label={categoryGroup.name}>
-            {#each categoryGroup.categories as category}
-              <option value={category}>
-                {category.name}
+      {#if accounts.length > 0}
+        <FormFloatingInputGroup
+          id="account"
+          error={formErrors?.account}
+          label={`Account (list refreshed ${getRelativeTime(
+            $currTime,
+            refreshTimes.accounts
+          )})`}
+        >
+          <Input
+            slot="input"
+            type="select"
+            name="account"
+            class={formErrors?.account ? "is-invalid" : ""}
+            id="account"
+            bind:value={account}
+          >
+            {#each accounts as account}
+              <option value={account}>
+                {account.name}
               </option>
             {/each}
-          </optgroup>
-        {/each}
-      </select>
-      <button on:click|preventDefault={refreshHandlers.categories}>
-        Refresh categories
-      </button>
-      {#if refreshTimes.categories}
-        <span>
-          Last updated {getRelativeTime($currTime, refreshTimes.categories)}
-        </span>
+          </Input>
+          <Button
+            slot="right-addon"
+            outline
+            size="sm"
+            on:click={refreshHandlers.accounts}
+          >
+            <Icon name="arrow-clockwise" />
+          </Button>
+        </FormFloatingInputGroup>
+      {:else}
+        Loading accounts...
       {/if}
-    {:else}
-      Loading categories...
-    {/if}
-  </div>
 
-  <div>
-    <label for="payee">Payee:</label>
-    <input bind:value={payeeName} name="payee" id="payee" />
-  </div>
-
-  <div>
-    <label for="amount">Amount:</label>
-    <input
-      bind:value={amount}
-      type="number"
-      name="amount"
-      id="amount"
-      step="0.01"
-      placeholder="0.00"
-    />
-  </div>
-
-  <div>
-    <label for="memo">Memo:</label>
-    <input bind:value={memo} name="memo" id="memo" />
-  </div>
-
-  <div>
-    <label for="cleared">Cleared:</label>
-    <input bind:checked={cleared} type="checkbox" name="cleared" id="cleared" />
-  </div>
-
-  <div>
-    <label for="approved">Approved:</label>
-    <input
-      bind:checked={approved}
-      type="checkbox"
-      name="approved"
-      id="approved"
-    />
-  </div>
-
-  <div>
-    <label for="flags">Flag:</label>
-    <span id="flags">
-      <input
-        bind:group={flag}
-        style:--flagColor="black"
-        class="flag flag-default"
-        type="radio"
-        name="flag"
-        checked
-      />
-      {#each Object.entries(flagOptions) as [option, color]}
-        <input
-          bind:group={flag}
-          style:--flagColor={color}
-          class="flag flag-option"
-          type="radio"
-          name="flag"
-          value={option}
+      <FormFloatingInputGroup
+        error={formErrors?.amount}
+        id="amount"
+        label="Amount"
+      >
+        <Input
+          slot="input"
+          bind:value={amount}
+          name="amount"
+          id="amount"
+          type="number"
+          step="0.01"
+          class={`${amountClassValue} ${amountClassError}`}
         />
-      {/each}
-    </span>
+      </FormFloatingInputGroup>
+
+      <FormFloatingInputGroup id="memo" label="Memo">
+        <Input
+          slot="input"
+          bind:value={memo}
+          name="memo"
+          id="memo"
+          type="text"
+        />
+      </FormFloatingInputGroup>
+
+      <FormFloatingInputGroup id="flag" label="Flag">
+        <Input
+          slot="input"
+          type="select"
+          name="flag"
+          id="flag"
+          bind:value={flag}
+        >
+          <option selected value={null} />
+          {#each Object.entries(ynabFlagColors) as [option, color]}
+            <option value={option} style:color style:font-weight="bold">
+              {option.toUpperCase()}
+            </option>
+          {/each}
+        </Input>
+      </FormFloatingInputGroup>
+
+      <FormGroup>
+        <div class="row align-items-center">
+          <div class="col-auto">
+            <input
+              type="checkbox"
+              class="btn-check"
+              name="cleared"
+              id="cleared"
+              autocomplete="off"
+              bind:checked={cleared}
+            />
+            <label
+              class="btn"
+              class:btn-outline-success={cleared}
+              class:btn-outline-secondary={!cleared}
+              for="cleared"
+              style:width="170px"
+            >
+              {cleared ? "Mark cleared" : "Mark not cleared"}
+            </label>
+          </div>
+          <div class="col-auto">
+            <input
+              type="checkbox"
+              class="btn-check"
+              name="approved"
+              id="approved"
+              autocomplete="off"
+              bind:checked={approved}
+            />
+            <label
+              class="btn"
+              class:btn-outline-success={approved}
+              class:btn-outline-secondary={!approved}
+              for="approved"
+              style:width="170px"
+            >
+              {approved ? "Mark approved" : "Mark not approved"}
+            </label>
+          </div>
+        </div>
+      </FormGroup>
+
+      <Button on:click={clickHandler} color="primary" type="submit">Add</Button>
+    </Form>
   </div>
-
-  <button on:click|preventDefault={clickHandler} type="submit">Add</button>
-</form>
-
-<style>
-  .flag {
-    appearance: none;
-
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-
-    border: 2px solid var(--flagColor);
-    transition: 0.2s all linear;
-    margin-right: 5px;
-
-    position: relative;
-    top: 4px;
-  }
-
-  .flag-option:checked {
-    border: 6px solid var(--flagColor);
-  }
-</style>
+</div>
