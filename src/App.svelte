@@ -60,7 +60,6 @@
     token = null;
     apiError.set(null);
     sessionStorage.clear();
-    localStorage.clear();
   }
 </script>
 
