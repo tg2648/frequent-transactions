@@ -111,9 +111,25 @@
       </div>
     </Offcanvas>
   {:else}
-    <Button color={"primary"} on:click={authorizeWithYNAB}>
-      Authorize with YNAB
-    </Button>
+    <h1 class="display-3">
+      Frequent Transactions for <span class="header">YNAB</span>
+    </h1>
+
+    <div class="my-5 d-flex justify-content-center">
+      <Button color={"primary"} on:click={authorizeWithYNAB}>
+        Authorize with YNAB
+      </Button>
+    </div>
+
     <Footer />
   {/if}
 </main>
+
+<style>
+  .header {
+    font-family: "Sense", Helvetica, Arial, sans-serif;
+    color: var(--ynabBlue);
+    /* font-size: 2.25rem; */
+    font-weight: 900;
+  }
+</style>
