@@ -81,7 +81,7 @@
   {#if token}
     <nav class="navbar navbar-expand-lg bg-light mb-2">
       <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Frequent Transactions for YNAB</span>
+        <span class="navbar-brand mb-0 h1">Frequent Transactions</span>
         <div class="ms-auto me-2">
           <Button
             outline
