@@ -234,45 +234,39 @@
       </FormFloatingInputGroup>
 
       <FormGroup>
-        <div class="row align-items-center">
-          <div class="col-auto">
-            <input
-              type="checkbox"
-              class="btn-check"
-              name="cleared"
-              id="cleared"
-              autocomplete="off"
-              bind:checked={cleared}
-            />
-            <label
-              class="btn"
-              class:btn-outline-success={cleared}
-              class:btn-outline-secondary={!cleared}
-              for="cleared"
-              style:width="170px"
-            >
-              {cleared ? "Mark cleared" : "Mark not cleared"}
-            </label>
-          </div>
-          <div class="col-auto">
-            <input
-              type="checkbox"
-              class="btn-check"
-              name="approved"
-              id="approved"
-              autocomplete="off"
-              bind:checked={approved}
-            />
-            <label
-              class="btn"
-              class:btn-outline-success={approved}
-              class:btn-outline-secondary={!approved}
-              for="approved"
-              style:width="170px"
-            >
-              {approved ? "Mark approved" : "Mark not approved"}
-            </label>
-          </div>
+        <div class="d-grid gap-2 d-sm-block">
+          <input
+            type="checkbox"
+            class="btn-check"
+            name="cleared"
+            id="cleared"
+            autocomplete="off"
+            bind:checked={cleared}
+          />
+          <label
+            class="btn"
+            class:btn-outline-success={cleared}
+            class:btn-outline-secondary={!cleared}
+            for="cleared"
+          >
+            {cleared ? "Cleared" : "Not cleared"}
+          </label>
+          <input
+            type="checkbox"
+            class="btn-check"
+            name="approved"
+            id="approved"
+            autocomplete="off"
+            bind:checked={approved}
+          />
+          <label
+            class="btn"
+            class:btn-outline-success={approved}
+            class:btn-outline-secondary={!approved}
+            for="approved"
+          >
+            {approved ? "Approved" : "Not approved"}
+          </label>
         </div>
       </FormGroup>
 
