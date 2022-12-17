@@ -99,44 +99,45 @@
             <Button class="ms-2" color="success" on:click={logTransaction}>
               {loading ? "..." : "Log"}
             </Button>
+            <Button
+              class="ms-2"
+              color="danger"
+              outline
+              on:click={removeTransaction}
+            >
+              <Icon name="trash" />
+            </Button>
           </div>
         </div>
         <!-- Lower card -->
         <Collapse {isOpen} class="mt-2">
-          <div class="d-flex ms-4">
+          <div class="ms-4">
             <div>
-              <div>
-                <span class="text-muted">Budget:</span>
-                {transactionDetails.budget.name}
-              </div>
-              <div>
-                <span class="text-muted">Account:</span>
-                {transactionDetails.account.name}
-              </div>
-              <div class="my-1">
-                {transactionDetails.memo}
-              </div>
-              <div>
-                <span
-                  class="badge rounded-pill"
-                  class:text-bg-success={transactionDetails.cleared}
-                  class:text-bg-secondary={!transactionDetails.cleared}
-                >
-                  {clearedText}
-                </span>
-                <span
-                  class="badge rounded-pill"
-                  class:text-bg-success={transactionDetails.approved}
-                  class:text-bg-secondary={!transactionDetails.approved}
-                >
-                  {approvedText}
-                </span>
-              </div>
+              <span class="text-muted">Budget:</span>
+              {transactionDetails.budget.name}
             </div>
-            <div class="ms-auto align-self-center">
-              <Button color="danger" outline on:click={removeTransaction}>
-                <Icon name="trash" />
-              </Button>
+            <div>
+              <span class="text-muted">Account:</span>
+              {transactionDetails.account.name}
+            </div>
+            <div class="my-1">
+              {transactionDetails.memo}
+            </div>
+            <div>
+              <span
+                class="badge rounded-pill"
+                class:text-bg-success={transactionDetails.cleared}
+                class:text-bg-secondary={!transactionDetails.cleared}
+              >
+                {clearedText}
+              </span>
+              <span
+                class="badge rounded-pill"
+                class:text-bg-success={transactionDetails.approved}
+                class:text-bg-secondary={!transactionDetails.approved}
+              >
+                {approvedText}
+              </span>
             </div>
           </div>
         </Collapse>
