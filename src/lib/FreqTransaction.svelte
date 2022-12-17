@@ -69,7 +69,8 @@
         <!-- Upper card -->
         <div class="d-flex">
           <Button
-            style="margin-left: -15px"
+            style="--bs-btn-padding-x: 0rem; --bs-btn-padding-y: 0rem;"
+            class="me-2"
             color={"light"}
             on:click={() => (isOpen = !isOpen)}
           >
@@ -98,14 +99,6 @@
             </strong>
             <Button class="ms-2" color="success" on:click={logTransaction}>
               {loading ? "..." : "Log"}
-            </Button>
-            <Button
-              class="ms-2"
-              color="danger"
-              outline
-              on:click={removeTransaction}
-            >
-              <Icon name="trash" />
             </Button>
           </div>
         </div>
@@ -139,6 +132,14 @@
                 {approvedText}
               </span>
             </div>
+            <Button
+              class="text-danger"
+              style="--bs-btn-padding-x: 0rem;"
+              color="link"
+              on:click={removeTransaction}
+            >
+              Delete
+            </Button>
           </div>
         </Collapse>
       </div>
