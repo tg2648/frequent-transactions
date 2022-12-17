@@ -42,19 +42,18 @@
         {transactionDetails}
       />
     {/each}
-    <Button on:click={exportTransactions}>Export</Button>
+    <!-- <Button on:click={exportTransactions}>Export</Button>
     {#if encodedTransactions}
       <details>
         <summary>Copy the code below</summary>
         <textarea readonly rows="5" cols="33">{encodedTransactions}</textarea>
       </details>
-    {/if}
+    {/if} -->
   {:else}
-    <div>No transactions</div>
-    <div>
+    <!-- <div>
       <Button color={"link"} on:click={importTransactions}>
         Import transactions exported from another device
       </Button>
-    </div>
+    </div> -->
   {/if}
 </div>
