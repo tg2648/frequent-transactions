@@ -17,7 +17,7 @@
   const ynabApi = getApi();
 
   let loading;
-  let isOpen = true;
+  let isOpen = false;
   let amountClass =
     transactionDetails.milliAmount < 0 ? "amount-negative" : "amount-positive";
   let approvedText = transactionDetails.approved ? "Approved" : "Not approved";
