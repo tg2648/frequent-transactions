@@ -6,11 +6,16 @@
 
 .amount-positive {
    color: var(--ynabGreen) !important;
- }
+}
 
 .amount-negative {
    color: var(--ynabRed) !important;
- }
+}
+
+// Make Bootstrap cards a bit tighter
+$spacer: 1rem;
+$card-spacer-y: $spacer * 0.5;
+$card-spacer-x: $spacer * 0.5;
 
 // Import all of Bootstrap's CSS
 @import "bootstrap/scss/bootstrap";
