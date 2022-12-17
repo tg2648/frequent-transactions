@@ -1,10 +1,10 @@
 <script>
-  import { SaveTransaction } from "ynab";
   import { Button, Form, FormGroup, FormText, Input, Icon } from "sveltestrap";
 
   // Local imports
   import { currTime } from "../stores";
   import { getRelativeTime } from "../utils";
+  import { ynabFlagColors } from "../utils";
   import FormFloatingInputGroup from "./FormFloatingInputGroup.svelte";
 
   // Props
@@ -19,24 +19,14 @@
   // Transaction parameters
   let account = null;
   let category = null;
-  let payeeName = "";
+  let payeeName = null;
   let amount = null;
+  let flag = null;
   let memo = "";
   let cleared = false;
   let approved = true;
-  let flag = null;
-
-  let flagOptions = {
-    [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
-    [SaveTransaction.FlagColorEnum.Orange]: "#ff9f0a",
-    [SaveTransaction.FlagColorEnum.Yellow]: "#ffd60a",
-    [SaveTransaction.FlagColorEnum.Green]: "#32d74b",
-    [SaveTransaction.FlagColorEnum.Blue]: "#64d2ff",
-    [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
-  };
 
   let formErrors = {};
-
   let amountClassValue;
   let amountClassError;
   $: amountClassValue = amount >= 0 ? "amount-positive" : "amount-negative";
@@ -229,7 +219,7 @@
           bind:value={flag}
         >
           <option selected value={null} />
-          {#each Object.entries(flagOptions) as [option, color]}
+          {#each Object.entries(ynabFlagColors) as [option, color]}
             <option value={option} style:color style:font-weight="bold">
               {option.toUpperCase()}
             </option>

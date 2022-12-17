@@ -2,11 +2,12 @@
   // @ts-ignore
   import * as ynab from "ynab";
   import { getContext } from "svelte";
-  import { Button } from "sveltestrap";
+  import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
   import { config } from "../config";
   import { apiError } from "../stores";
+  import { ynabFlagColors } from "../utils";
 
   // Props
   export let transactionDetails, removeTransaction;
@@ -16,6 +17,11 @@
   const ynabApi = getApi();
 
   let loading;
+  let isOpen = true;
+  let amountClass =
+    transactionDetails.milliAmount < 0 ? "amount-negative" : "amount-positive";
+  let approvedText = transactionDetails.approved ? "Approved" : "Not approved";
+  let clearedText = transactionDetails.cleared ? "Cleared" : "Not cleared";
 
   function logTransaction() {
     loading = true;
@@ -48,48 +54,91 @@
   }
 </script>
 
-<div class="card">
-  <span>
-    {transactionDetails.budget.name}
-  </span>
-  <span>
-    {transactionDetails.account.name}
-  </span>
-  <span>
-    {transactionDetails.category?.name ?? "No category"}
-  </span>
-  <span>
-    {transactionDetails.payeeName}
-  </span>
-  <span
-    class={transactionDetails.milliAmount < 0
-      ? "amount-negative"
-      : "amount-positive"}
-  >
-    {transactionDetails.displayAmount}
-  </span>
-  <span>
-    {transactionDetails.memo}
-  </span>
-  <span>
-    {transactionDetails.cleared}
-  </span>
-  <span>
-    {transactionDetails.approved}
-  </span>
-  <span>
-    {transactionDetails.flag}
-  </span>
-
-  <Button on:click={logTransaction}>{loading ? "..." : "Log"}</Button>
-  <Button on:click={removeTransaction}>X</Button>
+<div class="row">
+  <div class="col-lg-7">
+    <div
+      style:--flag-color={ynabFlagColors[transactionDetails.flag]}
+      class:flag-border={transactionDetails.flag}
+      class="card text-bg-light mb-3"
+    >
+      <div class="card-body">
+        <!-- Upper card -->
+        <div class="d-flex">
+          <Button
+            style="margin-left: -15px"
+            color={"light"}
+            on:click={() => (isOpen = !isOpen)}
+          >
+            {#if isOpen}
+              <Icon name="chevron-down" />
+            {:else}
+              <Icon name="chevron-right" />
+            {/if}
+          </Button>
+          <div>
+            <div>
+              {transactionDetails.payeeName ?? "No payee"}
+            </div>
+            <div class="text-muted">
+              {transactionDetails.category?.name ?? "No category"}
+            </div>
+          </div>
+          <div class="ms-auto d-inline-flex align-items-center">
+            <strong class={amountClass}>
+              {transactionDetails.displayAmount}
+            </strong>
+            <Button class="ms-2" color="success" on:click={logTransaction}>
+              {loading ? "..." : "Log"}
+            </Button>
+          </div>
+        </div>
+        <!-- Lower card -->
+        <Collapse {isOpen} class="mt-2">
+          <div class="d-flex ms-4">
+            <div>
+              <div>
+                <span class="text-muted">Budget:</span>
+                {transactionDetails.budget.name}
+              </div>
+              <div>
+                <span class="text-muted">Account:</span>
+                {transactionDetails.account.name}
+              </div>
+              <div class="my-1">
+                {transactionDetails.memo}
+              </div>
+              <div>
+                <span
+                  class="badge rounded-pill"
+                  class:text-bg-success={transactionDetails.cleared}
+                  class:text-bg-secondary={!transactionDetails.cleared}
+                >
+                  {clearedText}
+                </span>
+                <span
+                  class="badge rounded-pill"
+                  class:text-bg-success={transactionDetails.approved}
+                  class:text-bg-secondary={!transactionDetails.approved}
+                >
+                  {approvedText}
+                </span>
+              </div>
+            </div>
+            <div class="ms-auto align-self-center">
+              <Button color="danger" outline on:click={removeTransaction}>
+                <Icon name="trash" />
+              </Button>
+            </div>
+          </div>
+        </Collapse>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-  .card {
-    border: 1px solid #aaa;
-    border-radius: 2px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 1em;
+  .flag-border {
+    border-left-width: 5px;
+    border-left-color: var(--flag-color);
   }
 </style>

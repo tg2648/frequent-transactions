@@ -1,3 +1,14 @@
+import { SaveTransaction } from "ynab";
+
+export let ynabFlagColors = {
+  [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
+  [SaveTransaction.FlagColorEnum.Orange]: "#ff9f0a",
+  [SaveTransaction.FlagColorEnum.Yellow]: "#ffd60a",
+  [SaveTransaction.FlagColorEnum.Green]: "#32d74b",
+  [SaveTransaction.FlagColorEnum.Blue]: "#64d2ff",
+  [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
+};
+
 /**
  * Generates a random string of hex characters of given size
  * https://stackoverflow.com/a/58326357/9009483
