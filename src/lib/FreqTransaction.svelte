@@ -84,7 +84,12 @@
               {transactionDetails.payeeName ?? "No payee"}
             </div>
             <div class="text-muted">
-              {transactionDetails.category?.name ?? "No category"}
+              {#if transactionDetails.category}
+                {transactionDetails.category.group}:
+                {transactionDetails.category.name}
+              {:else}
+                No category
+              {/if}
             </div>
           </div>
           <div class="ms-auto d-inline-flex align-items-center">

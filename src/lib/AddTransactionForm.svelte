@@ -18,7 +18,7 @@
 
   // Transaction parameters
   let account = null;
-  let category = null;
+  let category = null; // Includes category group information
   let payeeName = null;
   let amount = null;
   let flag = null;
@@ -128,7 +128,13 @@
             {#each categoryGroups as categoryGroup}
               <optgroup label={categoryGroup.name}>
                 {#each categoryGroup.categories as category}
-                  <option value={category}>
+                  <option
+                    value={{
+                      name: category.name,
+                      id: category.id,
+                      group: categoryGroup.name,
+                    }}
+                  >
                     {category.name}
                   </option>
                 {/each}
