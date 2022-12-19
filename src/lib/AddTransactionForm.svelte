@@ -27,22 +27,38 @@
   let approved = true;
 
   let formErrors = {};
+  let isAmountInflow = false;
   let amountClassValue;
   let amountClassError;
-  $: amountClassValue = amount >= 0 ? "amount-positive" : "amount-negative";
+  $: amountClassValue = isAmountInflow ? "amount-positive" : "amount-negative";
   $: amountClassError = formErrors?.amount ? "is-invalid" : "";
+  $: amount = amount < 0 ? -amount : amount; // Only allow positive values in form
+
+  function makeAmountInflow(event) {
+    event.preventDefault();
+    isAmountInflow = true;
+  }
+
+  function makeAmountOutflow(event) {
+    event.preventDefault();
+    isAmountInflow = false;
+  }
 
   function submitForm(event) {
     event.preventDefault();
     formErrors = {};
 
-    console.log(formErrors);
     if (amount === null) {
       formErrors.amount = "Amount required";
     }
 
     if (account === null) {
       formErrors.account = "Account required";
+    }
+
+    // Convert amount to negative if outflow
+    if (!isAmountInflow) {
+      amount = -amount;
     }
 
     if (Object.keys(formErrors).length === 0) {
@@ -58,12 +74,14 @@
       };
 
       addTransaction(newTransaction);
-      formErrors = {};
+      clearForm();
     }
   }
 
   function clearForm(event) {
-    event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
     account = null;
     category = null;
     payeeName = null;
@@ -72,6 +90,8 @@
     memo = "";
     cleared = false;
     approved = true;
+
+    formErrors = {};
   }
 </script>
 
@@ -202,21 +222,45 @@
         Loading accounts...
       {/if}
 
-      <FormFloatingInputGroup
-        error={formErrors?.amount}
-        id="amount"
-        label="Amount"
-      >
-        <Input
-          slot="input"
-          bind:value={amount}
-          name="amount"
-          id="amount"
-          type="number"
-          step="0.01"
-          class={`${amountClassValue} ${amountClassError}`}
-        />
-      </FormFloatingInputGroup>
+      <div class="row g-2">
+        <div class="col">
+          <FormFloatingInputGroup
+            error={formErrors?.amount}
+            id="amount"
+            label="Amount"
+          >
+            <Input
+              slot="input"
+              bind:value={amount}
+              name="amount"
+              id="amount"
+              type="number"
+              step="0.01"
+              class={`${amountClassValue} ${amountClassError}`}
+            />
+          </FormFloatingInputGroup>
+        </div>
+        <div class="col-auto">
+          <Button
+            style="height:58px"
+            color="success"
+            outline={!isAmountInflow}
+            on:click={makeAmountInflow}
+          >
+            + Inflow
+          </Button>
+        </div>
+        <div class="col-auto">
+          <Button
+            style="height:58px"
+            color="danger"
+            outline={isAmountInflow}
+            on:click={makeAmountOutflow}
+          >
+            - Outflow
+          </Button>
+        </div>
+      </div>
 
       <FormFloatingInputGroup id="memo" label="Memo">
         <Input
