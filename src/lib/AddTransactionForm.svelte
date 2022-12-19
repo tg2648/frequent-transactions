@@ -32,7 +32,7 @@
   $: amountClassValue = amount >= 0 ? "amount-positive" : "amount-negative";
   $: amountClassError = formErrors?.amount ? "is-invalid" : "";
 
-  function clickHandler(event) {
+  function submitForm(event) {
     event.preventDefault();
     formErrors = {};
 
@@ -60,6 +60,18 @@
       addTransaction(newTransaction);
       formErrors = {};
     }
+  }
+
+  function clearForm(event) {
+    event.preventDefault();
+    account = null;
+    category = null;
+    payeeName = null;
+    amount = null;
+    flag = null;
+    memo = "";
+    cleared = false;
+    approved = true;
   }
 </script>
 
@@ -270,7 +282,8 @@
         </div>
       </FormGroup>
 
-      <Button on:click={clickHandler} color="primary" type="submit">Add</Button>
+      <Button on:click={submitForm} color="primary" type="submit">Add</Button>
+      <Button on:click={clearForm} color="secondary">Clear</Button>
     </Form>
   </div>
 </div>
