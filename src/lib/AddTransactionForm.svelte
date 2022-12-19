@@ -27,21 +27,21 @@
   let approved = true;
 
   let formErrors = {};
-  let isAmountInflow = false;
+  let isAmountOutflow = true;
   let amountClassValue;
   let amountClassError;
-  $: amountClassValue = isAmountInflow ? "amount-positive" : "amount-negative";
+  $: amountClassValue = isAmountOutflow ? "amount-negative" : "amount-positive";
   $: amountClassError = formErrors?.amount ? "is-invalid" : "";
   $: amount = amount < 0 ? -amount : amount; // Only allow positive values in form
 
   function makeAmountInflow(event) {
     event.preventDefault();
-    isAmountInflow = true;
+    isAmountOutflow = false;
   }
 
   function makeAmountOutflow(event) {
     event.preventDefault();
-    isAmountInflow = false;
+    isAmountOutflow = true;
   }
 
   function submitForm(event) {
@@ -56,8 +56,8 @@
       formErrors.account = "Account required";
     }
 
-    // Convert amount to negative if outflow
-    if (!isAmountInflow) {
+    // Convert amount to negative if amount exists, not zero, and marked as outflow
+    if (amount && isAmountOutflow && amount !== 0) {
       amount = -amount;
     }
 
@@ -244,7 +244,7 @@
           <Button
             style="height:58px"
             color="success"
-            outline={!isAmountInflow}
+            outline={isAmountOutflow}
             on:click={makeAmountInflow}
           >
             + Inflow
@@ -254,7 +254,7 @@
           <Button
             style="height:58px"
             color="danger"
-            outline={isAmountInflow}
+            outline={!isAmountOutflow}
             on:click={makeAmountOutflow}
           >
             - Outflow
@@ -290,7 +290,7 @@
       </FormFloatingInputGroup>
 
       <FormGroup>
-        <div class="d-grid gap-2 d-sm-block">
+        <div>
           <input
             type="checkbox"
             class="btn-check"
@@ -324,6 +324,10 @@
             {approved ? "Approved" : "Not approved"}
           </label>
         </div>
+        <FormText>
+          Transactions marked as approved will not require explicit approval or
+          rejection after logging.
+        </FormText>
       </FormGroup>
 
       <Button on:click={submitForm} color="primary" type="submit">Add</Button>
