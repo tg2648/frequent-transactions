@@ -2,9 +2,10 @@
   export let label;
   export let id;
   export let error = null;
+  export let cls = "";
 </script>
 
-<div class="mb-2">
+<div class={cls}>
   <div class="input-group" class:has-validation={error}>
     <div class="form-floating" class:is-invalid={error}>
       <slot name="input" />

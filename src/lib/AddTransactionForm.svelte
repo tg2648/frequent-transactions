@@ -100,6 +100,7 @@
     <Form>
       <FormFloatingInputGroup
         id="budget"
+        cls="mb-2"
         label={`Budget (list refreshed ${getRelativeTime(
           $currTime,
           refreshTimes.budgets
@@ -128,7 +129,7 @@
         </Button>
       </FormFloatingInputGroup>
 
-      <FormFloatingInputGroup id="payee" label="Payee">
+      <FormFloatingInputGroup id="payee" label="Payee" cls="mb-2">
         <Input
           slot="input"
           bind:value={payeeName}
@@ -144,6 +145,7 @@
       {#if categoryGroups.length > 0}
         <FormFloatingInputGroup
           id="category"
+          cls="mb-2"
           label={`Category (list refreshed ${getRelativeTime(
             $currTime,
             refreshTimes.categories
@@ -189,6 +191,7 @@
       {#if accounts.length > 0}
         <FormFloatingInputGroup
           id="account"
+          cls="mb-2"
           error={formErrors?.account}
           label={`Account (list refreshed ${getRelativeTime(
             $currTime,
@@ -222,7 +225,7 @@
         Loading accounts...
       {/if}
 
-      <div class="row g-2">
+      <div class="row mb-2">
         <div class="col">
           <FormFloatingInputGroup
             error={formErrors?.amount}
@@ -240,20 +243,20 @@
             />
           </FormFloatingInputGroup>
         </div>
-        <div class="col-auto">
+        <div class="col-auto d-grid gap-1">
           <Button
-            style="height:58px"
+            style="--bs-btn-padding-x: 0.5rem; --bs-btn-padding-y: 0rem;"
             color="success"
+            size="sm"
             outline={isAmountOutflow}
             on:click={makeAmountInflow}
           >
             + Inflow
           </Button>
-        </div>
-        <div class="col-auto">
           <Button
-            style="height:58px"
+            style="--bs-btn-padding-x: 0.5rem; --bs-btn-padding-y: 0rem;"
             color="danger"
+            size="sm"
             outline={!isAmountOutflow}
             on:click={makeAmountOutflow}
           >
@@ -262,7 +265,7 @@
         </div>
       </div>
 
-      <FormFloatingInputGroup id="memo" label="Memo">
+      <FormFloatingInputGroup id="memo" label="Memo" cls="mb-2">
         <Input
           slot="input"
           bind:value={memo}
@@ -272,7 +275,7 @@
         />
       </FormFloatingInputGroup>
 
-      <FormFloatingInputGroup id="flag" label="Flag">
+      <FormFloatingInputGroup id="flag" label="Flag" cls="mb-2">
         <Input
           slot="input"
           type="select"
