@@ -180,7 +180,7 @@
       newTransaction.amount
     );
 
-    frequentTransactions = [...frequentTransactions, newTransaction];
+    frequentTransactions = [newTransaction, ...frequentTransactions];
     ynabData.freqTransactions.save(frequentTransactions);
   }
 </script>
