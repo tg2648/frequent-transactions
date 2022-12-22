@@ -3,7 +3,6 @@
   import * as ynab from "ynab";
   import { getContext } from "svelte";
   import { slide } from "svelte/transition";
-  import { sineInOut } from "svelte/easing";
   import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
