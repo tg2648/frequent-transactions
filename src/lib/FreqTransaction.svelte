@@ -6,7 +6,7 @@
 
   // Local imports
   import { config } from "../config";
-  import { apiError } from "../stores";
+  import { apiError, apiErrorType } from "../stores";
   import { ynabFlagColors } from "../utils";
 
   // Props
@@ -25,7 +25,6 @@
 
   function logTransaction() {
     loading = true;
-
     ynabApi.transactions
       .createTransaction(transactionDetails.budget.id, {
         transaction: {
@@ -48,6 +47,7 @@
       .catch((err) => {
         if (err.error.name === "unauthorized") {
           apiError.set("Login expired. Please log out and log back in again.");
+          apiErrorType.set("unauthorized");
         } else {
           apiError.set(err.error.detail);
         }

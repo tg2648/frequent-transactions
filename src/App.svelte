@@ -5,7 +5,8 @@
 
   // Local imports
   import { config } from "./config";
-  import { apiError } from "./stores";
+  import { authorizeWithYNAB } from "./utils";
+  import { apiError, apiErrorType } from "./stores";
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
   import ApiError from "./lib/ApiError.svelte";
@@ -29,11 +30,6 @@
       ynabApi = new ynab.api(token);
     }
   });
-
-  function authorizeWithYNAB() {
-    const uri = `https://app.youneedabudget.com/oauth/authorize?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=token`;
-    location.replace(uri);
-  }
 
   function findYNABToken() {
     let token = null;
@@ -92,7 +88,7 @@
     </nav>
 
     {#if $apiError}
-      <ApiError error={$apiError} />
+      <ApiError error={$apiError} type={$apiErrorType} />
     {/if}
     <Budgets />
 

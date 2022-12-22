@@ -2,6 +2,7 @@ import { writable, readable } from "svelte/store";
 
 // Svelte stores
 export const apiError = writable(null);
+export const apiErrorType = writable(null);
 
 /**
  * https://svelte.dev/tutorial/readable-stores

@@ -1,4 +1,5 @@
 import { SaveTransaction } from "ynab";
+import { config } from "./config";
 
 export let ynabFlagColors = {
   [SaveTransaction.FlagColorEnum.Red]: "#ff453a",
@@ -8,6 +9,11 @@ export let ynabFlagColors = {
   [SaveTransaction.FlagColorEnum.Blue]: "#64d2ff",
   [SaveTransaction.FlagColorEnum.Purple]: "#bf5af2",
 };
+
+export function authorizeWithYNAB() {
+  const uri = `https://app.youneedabudget.com/oauth/authorize?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=token`;
+  location.replace(uri);
+}
 
 /**
  * Generates a random string of hex characters of given size
