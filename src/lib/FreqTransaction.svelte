@@ -63,7 +63,7 @@
 </script>
 
 <div class="row" transition:slide>
-  <div class="col-lg-7">
+  <div class="col">
     <div
       style:--flag-color={ynabFlagColors[transactionDetails.flag]}
       class:flag-border={transactionDetails.flag}
