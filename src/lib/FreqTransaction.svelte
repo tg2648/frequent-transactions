@@ -17,8 +17,9 @@
   /** @type { ynab.api } */
   const ynabApi = getApi();
 
-  let loading;
-  let isOpen = false;
+  let loading = false;
+  let isLogged = false;
+  let isCollapseOpen = false;
   let amountClass =
     transactionDetails.milliAmount < 0 ? "amount-negative" : "amount-positive";
   let approvedText = transactionDetails.approved ? "Approved" : "Not approved";
@@ -44,6 +45,8 @@
       })
       .then((res) => {
         console.log("Transaction logged!");
+        isLogged = true;
+        setTimeout(() => (isLogged = false), 2000);
       })
       .catch((err) => {
         if (err.error.name === "unauthorized") {
@@ -73,9 +76,9 @@
             style="--bs-btn-padding-x: 0rem; --bs-btn-padding-y: 0rem;"
             class="me-2"
             color={"light"}
-            on:click={() => (isOpen = !isOpen)}
+            on:click={() => (isCollapseOpen = !isCollapseOpen)}
           >
-            {#if isOpen}
+            {#if isCollapseOpen}
               <Icon name="chevron-down" />
             {:else}
               <Icon name="chevron-right" />
@@ -98,13 +101,18 @@
             <strong class={amountClass}>
               {transactionDetails.displayAmount}
             </strong>
-            <Button class="ms-2" color="success" on:click={logTransaction}>
-              {loading ? "..." : "Log"}
+            <Button
+              class="ms-2"
+              disabled={isLogged || loading}
+              color={isLogged ? "success" : "primary"}
+              on:click={logTransaction}
+            >
+              {isLogged ? "Logged!" : loading ? "Logging..." : "Log"}
             </Button>
           </div>
         </div>
         <!-- Lower card -->
-        <Collapse {isOpen} class="mt-2">
+        <Collapse isOpen={isCollapseOpen} class="mt-2">
           <div class="ms-4">
             <div>
               <span class="text-muted">Budget:</span>
