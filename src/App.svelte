@@ -59,6 +59,7 @@
     token = null;
     apiError.set(null);
     sessionStorage.clear();
+    localStorage.clear();
   }
 </script>
 
@@ -90,11 +91,16 @@
     {#if $apiError}
       <ApiError error={$apiError} type={$apiErrorType} />
     {/if}
+
     <Budgets />
 
     <Offcanvas isOpen={offcanvasOpen} toggle={offcanvasToggle} placement="end">
       <div class="d-grid gap-2">
         <Button color={"warning"} on:click={logout}>Logout</Button>
+        <div>
+          All data saved in your browser will be cleared after logging out
+          (lists of frequent transactions, budgets, accounts, and categories).
+        </div>
         <hr class="mb-1" />
         <div class="d-flex justify-content-center fs-4">
           <a
@@ -124,7 +130,6 @@
   .header {
     font-family: "Sense", Helvetica, Arial, sans-serif;
     color: var(--ynabBlue);
-    /* font-size: 2.25rem; */
     font-weight: 900;
   }
 </style>
