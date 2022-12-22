@@ -338,8 +338,11 @@
           </label>
         </div>
         <FormText>
-          Transactions marked as approved will not require explicit approval or
-          rejection after logging.
+          Choose if logging this transaction should:
+          <ul>
+            <li>Automatically clear it</li>
+            <li>Hold it for approval</li>
+          </ul>
         </FormText>
       </FormGroup>
 
