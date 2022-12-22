@@ -2,6 +2,7 @@
   // @ts-ignore
   import * as ynab from "ynab";
   import { getContext } from "svelte";
+  import { fly } from "svelte/transition";
   import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
@@ -58,7 +59,7 @@
   }
 </script>
 
-<div class="row">
+<div class="row" transition:fly>
   <div class="col-lg-7">
     <div
       style:--flag-color={ynabFlagColors[transactionDetails.flag]}
