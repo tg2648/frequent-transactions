@@ -74,10 +74,6 @@
 </svelte:head>
 
 <main class="container py-4 px-3 mx-auto">
-  {#if $apiError}
-    <ApiError error={$apiError} />
-  {/if}
-
   {#if token}
     <nav class="navbar navbar-expand-lg bg-light mb-2">
       <div class="container-fluid">
@@ -95,6 +91,9 @@
       </div>
     </nav>
 
+    {#if $apiError}
+      <ApiError error={$apiError} />
+    {/if}
     <Budgets />
 
     <Offcanvas isOpen={offcanvasOpen} toggle={offcanvasToggle} placement="end">
