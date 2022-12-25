@@ -119,7 +119,7 @@
 
     <img
       src={screenshot}
-      class="img-fluid shadow bg-body rounded mx-5 my-4 p-5"
+      class="img-fluid shadow bg-body rounded mx-5 my-4 p-3"
       alt="Screenshot"
     />
 
