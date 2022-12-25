@@ -96,7 +96,7 @@
 </script>
 
 <div class="row">
-  <div class="col-lg-7">
+  <div class="col">
     <Form>
       <FormFloatingInputGroup
         id="budget"
@@ -142,91 +142,96 @@
         </FormText>
       </FormFloatingInputGroup>
 
-      {#if categoryGroups.length > 0}
-        <FormFloatingInputGroup
-          id="category"
-          cls="mb-2"
-          label={`Category (list refreshed ${getRelativeTime(
-            $currTime,
-            refreshTimes.categories
-          )})`}
-        >
-          <Input
-            slot="input"
-            type="select"
-            name="category"
-            id="category"
-            bind:value={category}
-          >
-            <option value="" selected />
-            {#each categoryGroups as categoryGroup}
-              <optgroup label={categoryGroup.name}>
-                {#each categoryGroup.categories as category}
-                  <option
-                    value={{
-                      name: category.name,
-                      id: category.id,
-                      group: categoryGroup.name,
-                    }}
-                  >
-                    {category.name}
+      <div class="row g-1">
+        <div class="col-md-6">
+          {#if categoryGroups.length > 0}
+            <FormFloatingInputGroup
+              id="category"
+              cls="mb-2"
+              label={`Category (list refreshed ${getRelativeTime(
+                $currTime,
+                refreshTimes.categories
+              )})`}
+            >
+              <Input
+                slot="input"
+                type="select"
+                name="category"
+                id="category"
+                bind:value={category}
+              >
+                <option value="" selected />
+                {#each categoryGroups as categoryGroup}
+                  <optgroup label={categoryGroup.name}>
+                    {#each categoryGroup.categories as category}
+                      <option
+                        value={{
+                          name: category.name,
+                          id: category.id,
+                          group: categoryGroup.name,
+                        }}
+                      >
+                        {category.name}
+                      </option>
+                    {/each}
+                  </optgroup>
+                {/each}
+              </Input>
+              <Button
+                slot="right-addon"
+                outline
+                size="sm"
+                on:click={refreshHandlers.categories}
+              >
+                <Icon name="arrow-clockwise" />
+              </Button>
+            </FormFloatingInputGroup>
+          {:else}
+            Loading accounts...
+          {/if}
+        </div>
+        <div class="col-md-6">
+          {#if accounts.length > 0}
+            <FormFloatingInputGroup
+              id="account"
+              cls="mb-2"
+              error={formErrors?.account}
+              label={`Account (list refreshed ${getRelativeTime(
+                $currTime,
+                refreshTimes.accounts
+              )})`}
+            >
+              <Input
+                slot="input"
+                type="select"
+                name="account"
+                class={formErrors?.account ? "is-invalid" : ""}
+                id="account"
+                bind:value={account}
+              >
+                {#each accounts as account}
+                  <option value={account}>
+                    {account.name}
                   </option>
                 {/each}
-              </optgroup>
-            {/each}
-          </Input>
-          <Button
-            slot="right-addon"
-            outline
-            size="sm"
-            on:click={refreshHandlers.categories}
-          >
-            <Icon name="arrow-clockwise" />
-          </Button>
-        </FormFloatingInputGroup>
-      {:else}
-        Loading accounts...
-      {/if}
+              </Input>
+              <Button
+                slot="right-addon"
+                outline
+                size="sm"
+                on:click={refreshHandlers.accounts}
+              >
+                <Icon name="arrow-clockwise" />
+              </Button>
+            </FormFloatingInputGroup>
+          {:else}
+            Loading accounts...
+          {/if}
+        </div>
+      </div>
 
-      {#if accounts.length > 0}
-        <FormFloatingInputGroup
-          id="account"
-          cls="mb-2"
-          error={formErrors?.account}
-          label={`Account (list refreshed ${getRelativeTime(
-            $currTime,
-            refreshTimes.accounts
-          )})`}
-        >
-          <Input
-            slot="input"
-            type="select"
-            name="account"
-            class={formErrors?.account ? "is-invalid" : ""}
-            id="account"
-            bind:value={account}
-          >
-            {#each accounts as account}
-              <option value={account}>
-                {account.name}
-              </option>
-            {/each}
-          </Input>
-          <Button
-            slot="right-addon"
-            outline
-            size="sm"
-            on:click={refreshHandlers.accounts}
-          >
-            <Icon name="arrow-clockwise" />
-          </Button>
-        </FormFloatingInputGroup>
-      {:else}
-        Loading accounts...
-      {/if}
-
-      <div class="row mb-2">
-        <div class="col">
+      <div class="row g-1 mb-2">
+        <div class="col-sm-9 col-7">
           <FormFloatingInputGroup
             error={formErrors?.amount}
             id="amount"
@@ -243,7 +248,7 @@
             />
           </FormFloatingInputGroup>
         </div>
-        <div class="col-auto d-grid gap-1">
+        <div class="col-sm-3 col-5 d-grid gap-1" style="max-height:60px;">
           <Button
             style="--bs-btn-padding-x: 0.5rem; --bs-btn-padding-y: 0rem;"
             color="success"
@@ -265,32 +270,37 @@
         </div>
       </div>
 
-      <FormFloatingInputGroup id="memo" label="Memo" cls="mb-2">
-        <Input
-          slot="input"
-          bind:value={memo}
-          name="memo"
-          id="memo"
-          type="text"
-        />
-      </FormFloatingInputGroup>
-
-      <FormFloatingInputGroup id="flag" label="Flag" cls="mb-2">
-        <Input
-          slot="input"
-          type="select"
-          name="flag"
-          id="flag"
-          bind:value={flag}
-        >
-          <option selected value={null} />
-          {#each Object.entries(ynabFlagColors) as [option, color]}
-            <option value={option} style:color style:font-weight="bold">
-              {option.toUpperCase()}
-            </option>
-          {/each}
-        </Input>
-      </FormFloatingInputGroup>
+      <div class="row g-1">
+        <div class="col-sm-9 col-7">
+          <FormFloatingInputGroup id="memo" label="Memo" cls="mb-2">
+            <Input
+              slot="input"
+              bind:value={memo}
+              name="memo"
+              id="memo"
+              type="text"
+            />
+          </FormFloatingInputGroup>
+        </div>
+        <div class="col-sm-3 col-5">
+          <FormFloatingInputGroup id="flag" label="Flag" cls="mb-2">
+            <Input
+              slot="input"
+              type="select"
+              name="flag"
+              id="flag"
+              bind:value={flag}
+            >
+              <option selected value={null} />
+              {#each Object.entries(ynabFlagColors) as [option, color]}
+                <option value={option} style:color style:font-weight="bold">
+                  {option.toUpperCase()}
+                </option>
+              {/each}
+            </Input>
+          </FormFloatingInputGroup>
+        </div>
+      </div>
 
       <FormGroup>
         <div>
@@ -328,8 +338,11 @@
           </label>
         </div>
         <FormText>
-          Transactions marked as approved will not require explicit approval or
-          rejection after logging.
+          Choose if logging this transaction should:
+          <ul>
+            <li>Automatically clear it</li>
+            <li>Hold it for approval</li>
+          </ul>
         </FormText>
       </FormGroup>
 
