@@ -117,17 +117,28 @@
       Frequent Transactions for <span class="header">YNAB</span>
     </h1>
 
+    <p class="fs-4 mt-4 mb-5">
+      Have non-recurrent transactions that occur often? Log them quickly in YNAB
+      using this tool.
+    </p>
+
     <img
       src={screenshot}
-      class="img-fluid shadow bg-body rounded mx-5 my-4 p-3"
+      class="img-fluid shadow bg-body rounded p-3"
       alt="Screenshot"
     />
 
-    <div class="my-5 d-flex justify-content-center">
+    <div class="mt-5 mb-4 d-flex justify-content-center">
       <Button color={"primary"} on:click={authorizeWithYNAB}>
         Authorize with YNAB
       </Button>
     </div>
+
+    <p>
+      Please note that this tool works directly in your browser, so it is
+      currently not possible to synchronize frequent transactions across
+      multiple devices.
+    </p>
 
     <Footer />
   {/if}
