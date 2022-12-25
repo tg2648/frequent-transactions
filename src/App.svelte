@@ -10,6 +10,7 @@
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
   import ApiError from "./lib/ApiError.svelte";
+  import screenshot from "./assets/screenshot_1.png";
 
   /** @type { ynab.api } */
   let ynabApi = null;
@@ -109,6 +110,12 @@
     <h1 class="display-3">
       Frequent Transactions for <span class="header">YNAB</span>
     </h1>
+
+    <img
+      src={screenshot}
+      class="img-fluid shadow bg-body rounded mx-5 my-4 p-5"
+      alt="Screenshot"
+    />
 
     <div class="my-5 d-flex justify-content-center">
       <Button color={"primary"} on:click={authorizeWithYNAB}>
