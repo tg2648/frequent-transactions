@@ -1,5 +1,5 @@
 <script>
-  import { Icon } from "sveltestrap";
+  import GithubLink from "./GithubLink.svelte";
 </script>
 
 <section>
@@ -17,21 +17,6 @@
     logout.
   </p>
   <div class="d-flex justify-content-center fs-4 mt-5">
-    <a
-      id="github-link"
-      href="https://github.com/tg2648/frequent-transactions"
-      rel="noreferrer"
-      target="_blank"><Icon name="github" /></a
-    >
+    <GithubLink />
   </div>
 </section>
-
-<style>
-  #github-link {
-    color: grey;
-  }
-
-  #github-link:hover {
-    color: black;
-  }
-</style>

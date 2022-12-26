@@ -10,6 +10,7 @@
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
   import ApiError from "./lib/ApiError.svelte";
+  import GithubLink from "./lib/GithubLink.svelte";
   import screenshot from "./assets/screenshot_1.png";
 
   /** @type { ynab.api } */
@@ -104,11 +105,7 @@
         </div>
         <hr class="mb-1" />
         <div class="d-flex justify-content-center fs-4">
-          <a
-            href="https://github.com/tg2648/frequent-transactions"
-            rel="noreferrer"
-            target="_blank"><Icon name="github" style="color: black;" /></a
-          >
+          <GithubLink />
         </div>
       </div>
     </Offcanvas>
