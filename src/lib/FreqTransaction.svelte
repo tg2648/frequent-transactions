@@ -110,7 +110,7 @@
             <Icon name="arrow-down" />
           </Button>
         {:else}
-          <strong class={amountClass}>
+          <strong class={`text-nowrap ${amountClass}`}>
             {transactionDetails.displayAmount}
           </strong>
           <Button
