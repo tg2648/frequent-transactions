@@ -1,5 +1,6 @@
 <script>
   import { Button } from "sveltestrap";
+  import { flip } from "svelte/animate";
 
   // Local imports
   import { ynabData } from "../stores";
@@ -9,6 +10,7 @@
   export let frequentTransactions = [];
 
   let encodedTransactions = null;
+  let isEditing = false;
 
   /**
    * @param {number} idx Index of the removed transaction
@@ -17,6 +19,31 @@
     frequentTransactions.splice(idx, 1);
     frequentTransactions = frequentTransactions;
     ynabData.freqTransactions.save(frequentTransactions);
+  }
+
+  function swap(idx1, idx2) {
+    if (idx2 === 0) {
+      return;
+    }
+
+    if (idx1 === frequentTransactions.length - 1) {
+      return;
+    }
+
+    let temp;
+    temp = frequentTransactions[idx1];
+    frequentTransactions[idx1] = frequentTransactions[idx2];
+    frequentTransactions[idx2] = temp;
+
+    ynabData.freqTransactions.save(frequentTransactions);
+  }
+
+  function moveUp(idx) {
+    swap(idx - 1, idx);
+  }
+
+  function moveDown(idx) {
+    swap(idx, idx + 1);
   }
 
   function exportTransactions() {
@@ -35,12 +62,27 @@
 
 <div>
   {#if frequentTransactions.length > 0}
-    <h4>Log transaction</h4>
+    <div class="d-flex justify-content-between">
+      <h4>Log transaction</h4>
+      <Button
+        color="link"
+        on:click={() => {
+          isEditing = !isEditing;
+        }}
+      >
+        {isEditing ? "Stop Editing" : "Edit"}
+      </Button>
+    </div>
     {#each frequentTransactions as transactionDetails, idx (transactionDetails.id)}
-      <FreqTransaction
-        removeTransaction={() => removeTransaction(idx)}
-        {transactionDetails}
-      />
+      <div animate:flip={{ duration: 400 }}>
+        <FreqTransaction
+          removeTransaction={() => removeTransaction(idx)}
+          moveUp={() => moveUp(idx)}
+          moveDown={() => moveDown(idx)}
+          {isEditing}
+          {transactionDetails}
+        />
+      </div>
     {/each}
     <!-- <Button on:click={exportTransactions}>Export</Button>
     {#if encodedTransactions}
