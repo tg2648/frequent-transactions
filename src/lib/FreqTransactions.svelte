@@ -1,5 +1,4 @@
 <script>
-  import { Button } from "sveltestrap";
   import { flip } from "svelte/animate";
 
   // Local imports
@@ -7,10 +6,11 @@
   import { b64EncodeUnicode, UnicodeDecodeB64 } from "../utils";
   import FreqTransaction from "./FreqTransaction.svelte";
 
+  // Props
   export let frequentTransactions = [];
+  export let isEditing = false;
 
   let encodedTransactions = null;
-  let isEditing = false;
 
   /**
    * @param {number} idx Index of the removed transaction
@@ -62,17 +62,6 @@
 
 <div>
   {#if frequentTransactions.length > 0}
-    <div class="d-flex justify-content-between">
-      <h4>Log transaction</h4>
-      <Button
-        color="link"
-        on:click={() => {
-          isEditing = !isEditing;
-        }}
-      >
-        {isEditing ? "Stop Editing" : "Edit"}
-      </Button>
-    </div>
     {#each frequentTransactions as transactionDetails, idx (transactionDetails.id)}
       <div animate:flip={{ duration: 400 }}>
         <FreqTransaction

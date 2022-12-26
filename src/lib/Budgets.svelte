@@ -2,6 +2,7 @@
   // @ts-ignore
   import * as ynab from "ynab";
   import { getContext, onMount } from "svelte";
+  import { Button, Modal, ModalBody, ModalHeader } from "sveltestrap";
 
   // Local imports
   import { config } from "../config";
@@ -14,6 +15,8 @@
   let selectedBudget;
   let selectedBudgetId;
   let currencyFormatter;
+  let isEditing = false;
+  let isFormOpen = false;
 
   /** @type { Array<ynab.BudgetSummary> } */
   let budgets = [];
@@ -24,17 +27,20 @@
   /** @type { ynab.api } */
   const ynabApi = getApi();
 
+  // Update budget data whenever budget selection changes
   $: if (selectedBudgetId) {
     selectedBudget = budgets.filter(
       (budget) => budget.id === selectedBudgetId
     )[0];
   }
 
+  // Update currency formatter whenever budget changes
   $: currencyFormatter = currencyFormatter = new Intl.NumberFormat(undefined, {
     style: "currency",
     currency: selectedBudget?.currency_format.iso_code ?? "USD",
   });
 
+  // Fetch accounts and categories whenever budget changes
   $: if (selectedBudgetId) {
     getAccounts(selectedBudgetId);
     getCategories(selectedBudgetId);
@@ -182,25 +188,50 @@
 
     frequentTransactions = [newTransaction, ...frequentTransactions];
     ynabData.freqTransactions.save(frequentTransactions);
+
+    // Close modal
+    toggleFormModal();
+  }
+
+  function toggleFormModal() {
+    isFormOpen = !isFormOpen;
   }
 </script>
 
 <div>
-  <FreqTransactions {frequentTransactions} />
+  <FreqTransactions {frequentTransactions} {isEditing} />
 </div>
-
+<div>
+  <Button color="primary" on:click={toggleFormModal}>Add new</Button>
+  <Button
+    color="secondary"
+    on:click={() => {
+      isEditing = !isEditing;
+    }}
+  >
+    {isEditing ? "Stop editing" : "Edit list"}
+  </Button>
+</div>
 {#if selectedBudgetId}
-  <h4>Add frequent transaction</h4>
-
-  <AddTransactionForm
-    bind:selectedBudgetId
-    {budgets}
-    {accounts}
-    {categoryGroups}
-    {addTransaction}
-    {refreshHandlers}
-    {refreshTimes}
-  />
+  <Modal
+    isOpen={isFormOpen}
+    toggle={toggleFormModal}
+    fullscreen={"lg"}
+    size={"lg"}
+  >
+    <ModalHeader toggle={toggleFormModal}>Add frequent transaction</ModalHeader>
+    <ModalBody>
+      <AddTransactionForm
+        bind:selectedBudgetId
+        {budgets}
+        {accounts}
+        {categoryGroups}
+        {addTransaction}
+        {refreshHandlers}
+        {refreshTimes}
+      />
+    </ModalBody>
+  </Modal>
 {:else}
   <p>Loading...</p>
 {/if}
