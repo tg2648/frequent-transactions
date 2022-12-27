@@ -1,5 +1,13 @@
 <script>
-  import { Button, Form, FormGroup, FormText, Input, Icon } from "sveltestrap";
+  import {
+    Button,
+    Form,
+    FormGroup,
+    FormText,
+    Input,
+    Icon,
+    Tooltip,
+  } from "sveltestrap";
 
   // Local imports
   import { currTime } from "../stores";
@@ -303,7 +311,7 @@
       </div>
 
       <FormGroup>
-        <div>
+        <div class="d-flex align-items-center gap-2">
           <input
             type="checkbox"
             class="btn-check"
@@ -336,14 +344,21 @@
           >
             {approved ? "Approved" : "Not approved"}
           </label>
+          <Icon
+            name="question-circle"
+            id="clear-approved-tooltip"
+            class="text-muted"
+          />
+          <Tooltip target="clear-approved-tooltip" placement="top">
+            <div style="text-align: left;">
+              Choose if logging this transaction should:
+              <ul style="padding-left: 1rem;">
+                <li>Automatically clear it</li>
+                <li>Hold it for approval</li>
+              </ul>
+            </div>
+          </Tooltip>
         </div>
-        <FormText>
-          Choose if logging this transaction should:
-          <ul>
-            <li>Automatically clear it</li>
-            <li>Hold it for approval</li>
-          </ul>
-        </FormText>
       </FormGroup>
 
       <Button on:click={submitForm} color="primary" type="submit">Add</Button>
