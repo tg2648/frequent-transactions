@@ -100,8 +100,7 @@
       <div class="d-grid gap-2">
         <Button color={"warning"} on:click={logout}>Logout</Button>
         <div>
-          All data saved in your browser will be cleared after logging out
-          (lists of frequent transactions, budgets, accounts, and categories).
+          All data saved in your browser will be cleared after logging out.
         </div>
         <hr class="mb-1" />
         <div class="d-flex justify-content-center fs-4">

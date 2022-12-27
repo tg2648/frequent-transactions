@@ -13,8 +13,8 @@
   <p>
     The following data is retrieved and saved by the browser to avoid repeatedly
     asking for it from YNAB: category names/IDs, account names/IDs, and budget
-    names/IDs/currency formats. This data is then erased from your browser on
-    logout.
+    names/IDs/currency formats. This data is then erased from your browser after
+    logging out.
   </p>
   <div class="d-flex justify-content-center fs-4 mt-5">
     <GithubLink />
