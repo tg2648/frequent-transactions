@@ -168,7 +168,7 @@
                 id="category"
                 bind:value={category}
               >
-                <option value="" selected />
+                <option value={null} selected />
                 {#each categoryGroups as categoryGroup}
                   <optgroup label={categoryGroup.name}>
                     {#each categoryGroup.categories as category}
@@ -217,6 +217,7 @@
                 id="account"
                 bind:value={account}
               >
+                <option value={null} selected />
                 {#each accounts as account}
                   <option value={account}>
                     {account.name}

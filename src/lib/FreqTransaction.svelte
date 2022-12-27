@@ -30,7 +30,7 @@
       .createTransaction(transactionDetails.budget.id, {
         transaction: {
           account_id: transactionDetails.account.id,
-          category_id: transactionDetails.category.id,
+          category_id: transactionDetails.category?.id,
           payee_name: transactionDetails.payeeName,
           date: ynab.utils.getCurrentDateInISOFormat(),
           amount: transactionDetails.milliAmount,
