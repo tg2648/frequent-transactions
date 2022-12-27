@@ -195,7 +195,7 @@
               </Button>
             </FormFloatingInputGroup>
           {:else}
-            Loading accounts...
+            Loading categories...
           {/if}
         </div>
         <div class="col-md-6">
