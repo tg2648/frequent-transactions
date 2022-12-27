@@ -81,6 +81,7 @@
       </details>
     {/if} -->
   {:else}
+    <p>No transactions added</p>
     <!-- <div>
       <Button color={"link"} on:click={importTransactions}>
         Import transactions exported from another device

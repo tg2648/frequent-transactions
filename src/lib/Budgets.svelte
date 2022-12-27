@@ -203,14 +203,16 @@
 </div>
 <div>
   <Button color="primary" on:click={toggleFormModal}>Add new</Button>
-  <Button
-    color="secondary"
-    on:click={() => {
-      isEditing = !isEditing;
-    }}
-  >
-    {isEditing ? "Stop editing" : "Edit list"}
-  </Button>
+  {#if frequentTransactions.length > 0}
+    <Button
+      color="secondary"
+      on:click={() => {
+        isEditing = !isEditing;
+      }}
+    >
+      {isEditing ? "Stop editing" : "Edit list"}
+    </Button>
+  {/if}
 </div>
 {#if selectedBudgetId}
   <Modal
