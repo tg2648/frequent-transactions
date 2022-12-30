@@ -1,6 +1,6 @@
 <script>
   import { Icon, Button } from "sveltestrap";
-  import { authorizeWithYNAB } from "../utils";
+  import { redirectToOAuth } from "../auth";
 
   export let error;
   export let type;
@@ -16,7 +16,7 @@
         <Button
           color="link"
           class="p-0 alert-link"
-          on:click={authorizeWithYNAB}
+          on:click={() => redirectToOAuth()}
         >
           Login
         </Button>
