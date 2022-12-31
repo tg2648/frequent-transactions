@@ -5,7 +5,7 @@
 
   // Local imports
   import { config } from "./config";
-  import { authorizeWithYNAB } from "./utils";
+  import { redirectToOAuth, findTokens } from "./auth";
   import { apiError, apiErrorType } from "./stores";
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
@@ -27,35 +27,12 @@
 
   onMount(() => {
     console.log("App onMount()");
-    token = findYNABToken();
-    if (token) {
+    const tokens = findTokens();
+    if (tokens) {
+      token = tokens.access_token;
       ynabApi = new ynab.api(token);
     }
   });
-
-  function findYNABToken() {
-    let token = null;
-    const search = window.location.hash
-      .substring(1)
-      .replace(/&/g, '","')
-      .replace(/=/g, '":"');
-
-    if (search && search !== "") {
-      // Try to get access_token from the hash returned by OAuth
-      const params = JSON.parse('{"' + search + '"}', function (key, value) {
-        return key === "" ? value : decodeURIComponent(value);
-      });
-
-      token = params.access_token;
-      sessionStorage.setItem("ynab_access_token", token);
-      window.location.hash = "";
-    } else {
-      // Otherwise try sessionStorage
-      token = sessionStorage.getItem("ynab_access_token");
-    }
-
-    return token;
-  }
 
   function logout() {
     token = null;
@@ -125,7 +102,7 @@
     />
 
     <div class="mt-5 mb-4 d-flex justify-content-center">
-      <Button color={"primary"} on:click={authorizeWithYNAB}>
+      <Button color={"primary"} on:click={() => redirectToOAuth()}>
         Authorize with YNAB
       </Button>
     </div>
