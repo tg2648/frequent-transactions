@@ -23,8 +23,7 @@ export function findTokens() {
     tokens.refresh_token = params.refresh_token;
 
     sessionStorage.setItem("ftfy-session", JSON.stringify(tokens));
-    window.location.hash = "";
-    window.location.search = ""; // Netlify forwards all search parameters during redirect
+    window.history.replaceState("", "", window.location.pathname);
   } else {
     // Otherwise try sessionStorage
     tokens = JSON.parse(sessionStorage.getItem("ftfy-session"));
