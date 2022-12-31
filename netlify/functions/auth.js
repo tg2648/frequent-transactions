@@ -1,6 +1,8 @@
-import oauth, { config } from "./utils/oauth";
+const oauth = require("./utils/oauth");
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
+  const siteUrl = process.env.URL || "http://localhost:8888";
+
   if (
     !event.queryStringParameters ||
     Object.keys(event.queryStringParameters).length === 0
@@ -16,7 +18,7 @@ exports.handler = async (event) => {
   const { url } = event.queryStringParameters;
 
   const authorizationURI = oauth.authorizeURL({
-    redirect_uri: config.redirectUri,
+    redirect_uri: `${siteUrl}/.netlify/functions/auth-callback`,
     state: `url=${url}`,
   });
 

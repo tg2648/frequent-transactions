@@ -1,8 +1,9 @@
-// import getUserData from "./utils/getUserData";
-import oauth, { config } from "./utils/oauth";
-import * as qs from "querystring";
+const qs = require("querystring");
+const oauth = require("./utils/oauth");
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
+  const siteUrl = process.env.URL || "http://localhost:8888";
+
   if (!event.queryStringParameters) {
     return {
       statusCode: 401,
@@ -18,9 +19,7 @@ exports.handler = async (event) => {
     // exchange for an access token
     const { token } = await oauth.getToken({
       code,
-      redirect_uri: config.redirectUri,
-      client_id: config.clientId,
-      client_secret: config.clientSecret,
+      redirect_uri: `${siteUrl}/.netlify/functions/auth-callback`,
     });
 
     return {

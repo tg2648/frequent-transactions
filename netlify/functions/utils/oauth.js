@@ -1,18 +1,8 @@
-import { AuthorizationCode } from "simple-oauth2";
+const { AuthorizationCode } = require("simple-oauth2");
 
 const ynabAPI = "https://app.youneedabudget.com";
-const siteUrl = process.env.URL || "http://localhost:8888";
 
-export const config = {
-  clientId: process.env.YNAB_CLIENT_ID,
-  clientSecret: process.env.YNAB_CLIENT_SECRET,
-  tokenHost: ynabAPI,
-  authorizePath: `${ynabAPI}/oauth/authorize`,
-  tokenPath: `${ynabAPI}/oauth/token`,
-  redirectUri: `${siteUrl}/.netlify/functions/auth-callback`,
-};
-
-function authInstance(credentials) {
+function createAuthClient(credentials) {
   if (!credentials.client.id) {
     throw new Error("MISSING REQUIRED ENV VARS. Please set YNAB_CLIENT_ID");
   }
@@ -26,14 +16,14 @@ function authInstance(credentials) {
 }
 
 /* Create oauth2 instance to use in our two functions */
-export default authInstance({
+module.exports = createAuthClient({
   client: {
-    id: config.clientId,
-    secret: config.clientSecret,
+    id: process.env.YNAB_CLIENT_ID,
+    secret: process.env.YNAB_CLIENT_SECRET,
   },
   auth: {
-    tokenHost: config.tokenHost,
-    tokenPath: config.tokenPath,
-    authorizePath: config.authorizePath,
+    tokenHost: ynabAPI,
+    tokenPath: `${ynabAPI}/oauth/token`,
+    authorizePath: `${ynabAPI}/oauth/authorize`,
   },
 });
