@@ -14,8 +14,6 @@ exports.handler = async (event, context) => {
   const { code, state } = event.queryStringParameters;
   const { url } = qs.parse(state);
 
-  console.log(`url = ${url}`);
-
   try {
     // if the user accepts, we get an authorization token, which we need to
     // exchange for an access token
