@@ -35,6 +35,10 @@ export async function findTokenData() {
   return tokenData;
 }
 
+/**
+ * Returns new access and refresh tokens if the refresh is successful.
+ * Returns null if token could not be refreshed.
+ */
 export async function refreshToken(tokenData) {
   console.log("Refreshing token");
   const newTokenData = await fetch("/.netlify/functions/auth-refresh", {
@@ -45,7 +49,7 @@ export async function refreshToken(tokenData) {
     body: JSON.stringify(tokenData),
   })
     .then((response) => {
-      if (response.ok) {
+      if (!response.ok) {
         throw new Error("Could not refresh token");
       }
 
