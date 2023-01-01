@@ -1,11 +1,9 @@
 <script>
-  // @ts-ignore
   import * as ynab from "ynab";
   import { getContext, onMount } from "svelte";
   import { Button, Modal, ModalBody, ModalHeader } from "sveltestrap";
 
   // Local imports
-  import { config } from "../config";
   import { apiError, ynabData } from "../stores";
   import { convertNumberToMilliUnits, generateId } from "../utils";
   import AddTransactionForm from "./AddTransactionForm.svelte";
@@ -22,10 +20,6 @@
   let budgets = [];
   let accounts = [];
   let categoryGroups = [];
-
-  const { getApi } = getContext(config.context_key);
-  /** @type { ynab.api } */
-  const ynabApi = getApi();
 
   // Update budget data whenever budget selection changes
   $: if (selectedBudgetId) {
@@ -72,7 +66,7 @@
     getBudgets();
   });
 
-  function getBudgets() {
+  async function getBudgets() {
     console.log("getBudgets()");
     let cachedData = ynabData.budgets.load();
 
@@ -83,23 +77,27 @@
       refreshTimes.budgets = new Date(cachedData.timestamp);
     } else {
       console.log("Calling budget endpoint");
-      ynabApi.budgets
-        .getBudgets()
-        .then((res) => {
-          if (!selectedBudgetId) {
-            selectedBudgetId = res.data.default_budget.id;
-          }
-          ynabData.selectedBudgetId.save(selectedBudgetId);
-          budgets = res.data.budgets;
-          refreshTimes.budgets = ynabData.budgets.save(budgets);
-        })
-        .catch((err) => {
-          apiError.set(err.error.detail);
-        });
+      const token = await ynabData.token.load();
+      if (token) {
+        const ynabApi = new ynab.API(token.access_token);
+        ynabApi.budgets
+          .getBudgets()
+          .then((res) => {
+            if (!selectedBudgetId) {
+              selectedBudgetId = res.data.default_budget.id;
+            }
+            ynabData.selectedBudgetId.save(selectedBudgetId);
+            budgets = res.data.budgets;
+            refreshTimes.budgets = ynabData.budgets.save(budgets);
+          })
+          .catch((err) => {
+            apiError.set(err.error.detail);
+          });
+      }
     }
   }
 
-  function getAccounts(budgetId) {
+  async function getAccounts(budgetId) {
     console.log(`getAccounts(${budgetId})`);
     let cachedData = ynabData.accounts.load(budgetId);
 
@@ -109,23 +107,27 @@
       refreshTimes.accounts = new Date(cachedData.timestamp);
     } else {
       console.log("Calling accounts endpoint");
-      ynabApi.accounts
-        .getAccounts(budgetId)
-        .then((res) => {
-          accounts = res.data.accounts.map((account) => ({
-            id: account.id,
-            name: account.name,
-          }));
-          accounts.sort((a, b) => a.name.localeCompare(b.name));
-          refreshTimes.accounts = ynabData.accounts.save(accounts, budgetId);
-        })
-        .catch((err) => {
-          apiError.set(err.error.detail);
-        });
+      const token = await ynabData.token.load();
+      if (token) {
+        const ynabApi = new ynab.API(token.access_token);
+        ynabApi.accounts
+          .getAccounts(budgetId)
+          .then((res) => {
+            accounts = res.data.accounts.map((account) => ({
+              id: account.id,
+              name: account.name,
+            }));
+            accounts.sort((a, b) => a.name.localeCompare(b.name));
+            refreshTimes.accounts = ynabData.accounts.save(accounts, budgetId);
+          })
+          .catch((err) => {
+            apiError.set(err.error.detail);
+          });
+      }
     }
   }
 
-  function getCategories(budgetId) {
+  async function getCategories(budgetId) {
     console.log(`getCategories(${budgetId})`);
     let cachedData = ynabData.categories.load(budgetId);
 
@@ -135,41 +137,45 @@
       refreshTimes.categories = new Date(cachedData.timestamp);
     } else {
       console.log("Calling categories endpoint");
-      ynabApi.categories
-        .getCategories(budgetId)
-        .then((res) => {
-          /**
-           * Clean up categories:
-           * 1. Exclude deleted or hidden
-           * 2. Keep only name of category group and id and name of category
-           */
-          categoryGroups = res.data.category_groups
-            .filter(
-              (categoryGroup) =>
-                !categoryGroup.deleted &&
-                !categoryGroup.hidden &&
-                categoryGroup.name !== "Hidden Categories"
-            )
-            .map((categoryGroup) => ({
-              name: categoryGroup.name.startsWith("Internal")
-                ? "Internal"
-                : categoryGroup.name,
-              categories: categoryGroup.categories
-                .filter((category) => !category.deleted && !category.hidden)
-                .map((category) => ({
-                  id: category.id,
-                  name: category.name,
-                })),
-            }));
+      const token = await ynabData.token.load();
+      if (token) {
+        const ynabApi = new ynab.API(token.access_token);
+        ynabApi.categories
+          .getCategories(budgetId)
+          .then((res) => {
+            /**
+             * Clean up categories:
+             * 1. Exclude deleted or hidden
+             * 2. Keep only name of category group and id and name of category
+             */
+            categoryGroups = res.data.category_groups
+              .filter(
+                (categoryGroup) =>
+                  !categoryGroup.deleted &&
+                  !categoryGroup.hidden &&
+                  categoryGroup.name !== "Hidden Categories"
+              )
+              .map((categoryGroup) => ({
+                name: categoryGroup.name.startsWith("Internal")
+                  ? "Internal"
+                  : categoryGroup.name,
+                categories: categoryGroup.categories
+                  .filter((category) => !category.deleted && !category.hidden)
+                  .map((category) => ({
+                    id: category.id,
+                    name: category.name,
+                  })),
+              }));
 
-          refreshTimes.categories = ynabData.categories.save(
-            categoryGroups,
-            budgetId
-          );
-        })
-        .catch((err) => {
-          apiError.set(err.error.detail);
-        });
+            refreshTimes.categories = ynabData.categories.save(
+              categoryGroups,
+              budgetId
+            );
+          })
+          .catch((err) => {
+            apiError.set(err.error.detail);
+          });
+      }
     }
   }
 

@@ -5,16 +5,11 @@
   import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
-  import { config } from "../config";
-  import { apiError, apiErrorType } from "../stores";
+  import { ynabData, apiError, apiErrorType } from "../stores";
   import { ynabFlagColors } from "../utils";
 
   // Props
   export let transactionDetails, removeTransaction, moveUp, moveDown, isEditing;
-
-  const { getApi } = getContext(config.context_key);
-  /** @type { ynab.api } */
-  const ynabApi = getApi();
 
   let loading = false;
   let isLogged = false;
@@ -24,40 +19,40 @@
   let approvedText = transactionDetails.approved ? "Approved" : "Not approved";
   let clearedText = transactionDetails.cleared ? "Cleared" : "Not cleared";
 
-  function logTransaction() {
+  async function logTransaction() {
     loading = true;
-    ynabApi.transactions
-      .createTransaction(transactionDetails.budget.id, {
-        transaction: {
-          account_id: transactionDetails.account.id,
-          category_id: transactionDetails.category?.id,
-          payee_name: transactionDetails.payeeName,
-          date: ynab.utils.getCurrentDateInISOFormat(),
-          amount: transactionDetails.milliAmount,
-          memo: transactionDetails.memo,
-          flag_color: transactionDetails.flag,
-          approved: transactionDetails.approved,
-          cleared: transactionDetails.cleared
-            ? ynab.SaveTransaction.ClearedEnum.Cleared
-            : ynab.SaveTransaction.ClearedEnum.Uncleared,
-        },
-      })
-      .then((res) => {
-        console.log("Transaction logged!");
-        isLogged = true;
-        setTimeout(() => (isLogged = false), 2000);
-      })
-      .catch((err) => {
-        if (err.error.name === "unauthorized") {
-          apiError.set("Login expired. Please log out and log back in again.");
-          apiErrorType.set("unauthorized");
-        } else {
+    const token = await ynabData.token.load();
+
+    if (token) {
+      const ynabApi = new ynab.API(token.access_token);
+      ynabApi.transactions
+        .createTransaction(transactionDetails.budget.id, {
+          transaction: {
+            account_id: transactionDetails.account.id,
+            category_id: transactionDetails.category?.id,
+            payee_name: transactionDetails.payeeName,
+            date: ynab.utils.getCurrentDateInISOFormat(),
+            amount: transactionDetails.milliAmount,
+            memo: transactionDetails.memo,
+            flag_color: transactionDetails.flag,
+            approved: transactionDetails.approved,
+            cleared: transactionDetails.cleared
+              ? ynab.SaveTransaction.ClearedEnum.Cleared
+              : ynab.SaveTransaction.ClearedEnum.Uncleared,
+          },
+        })
+        .then((res) => {
+          console.log("Transaction logged!");
+          isLogged = true;
+          setTimeout(() => (isLogged = false), 2000);
+        })
+        .catch((err) => {
           apiError.set(err.error.detail);
-        }
-      })
-      .finally(() => {
-        loading = false;
-      });
+        })
+        .finally(() => {
+          loading = false;
+        });
+    }
   }
 </script>
 

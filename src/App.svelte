@@ -4,8 +4,7 @@
   import * as ynab from "ynab";
 
   // Local imports
-  import { config } from "./config";
-  import { redirectToOAuth, findTokens } from "./auth";
+  import { redirectToOAuth, findTokenData } from "./auth";
   import { apiError, apiErrorType } from "./stores";
   import Budgets from "./lib/Budgets.svelte";
   import Footer from "./lib/Footer.svelte";
@@ -13,24 +12,22 @@
   import GithubLink from "./lib/GithubLink.svelte";
   import screenshot from "./assets/screenshot_1.png";
 
-  /** @type { ynab.api } */
-  let ynabApi = null;
   let token = null;
 
   let offcanvasOpen = false;
   const offcanvasToggle = () => (offcanvasOpen = !offcanvasOpen);
 
-  // Make YNAB api available to other components
-  setContext(config.context_key, {
-    getApi: () => ynabApi,
-  });
-
-  onMount(() => {
+  onMount(async () => {
     console.log("App onMount()");
-    const tokens = findTokens();
-    if (tokens) {
-      token = tokens.access_token;
-      ynabApi = new ynab.api(token);
+    const tokenData = await findTokenData();
+    if (tokenData) {
+      console.log("Token data in onMount: " + tokenData.access_token);
+      token = tokenData.access_token;
+    } else {
+      // Could not obtain token, need to prompt user to re-login
+      token = "temp";
+      apiErrorType.set("unauthorized");
+      apiError.set("Unable to authorize with YNAB. Please re-login:");
     }
   });
 

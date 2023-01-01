@@ -1,3 +1,5 @@
+import { ynabData } from "./stores";
+
 export function redirectToOAuth() {
   // tell the auth flow where to go once you have a token
   const successURL = `${location.origin}${location.pathname}`;
@@ -6,8 +8,8 @@ export function redirectToOAuth() {
   location.replace(`/.netlify/functions/auth?url=${successURL}`);
 }
 
-export function findTokens() {
-  let tokens = {};
+export async function findTokenData() {
+  let tokenData = {};
   const search = window.location.hash
     .substring(1)
     .replace(/&/g, '","')
@@ -19,15 +21,45 @@ export function findTokens() {
       return key === "" ? value : decodeURIComponent(value);
     });
 
-    tokens.access_token = params.access_token;
-    tokens.refresh_token = params.refresh_token;
+    tokenData.access_token = params.access_token;
+    tokenData.refresh_token = params.refresh_token;
+    tokenData.expires_at = params.expires_at;
 
-    sessionStorage.setItem("ftfy-session", JSON.stringify(tokens));
+    ynabData.token.save(tokenData);
     window.history.replaceState("", "", window.location.pathname);
   } else {
     // Otherwise try sessionStorage
-    tokens = JSON.parse(sessionStorage.getItem("ftfy-session"));
+    tokenData = await ynabData.token.load();
   }
 
-  return tokens;
+  return tokenData;
+}
+
+export async function refreshToken(tokenData) {
+  console.log("Refreshing token");
+  const newTokenData = await fetch("/.netlify/functions/auth-refresh", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(tokenData),
+  })
+    .then((response) => {
+      if (response.ok) {
+        throw new Error("Could not refresh token");
+      }
+
+      return response.json();
+    })
+    .then((data) => {
+      console.log("Data: " + data);
+      console.log(data);
+      return data.data;
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      return null;
+    });
+
+  return newTokenData;
 }
