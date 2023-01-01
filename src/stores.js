@@ -1,4 +1,5 @@
 import { writable, readable } from "svelte/store";
+import { refreshToken } from "./auth";
 
 // Svelte stores
 export const apiError = writable(null);
@@ -17,13 +18,15 @@ export const currTime = readable(new Date(), function start(set) {
   };
 });
 
-// Custom stores
+// Local/session storage-based stores
 const DATA_VERSION = 1;
 const SELECTED_BUDGET_ID_KEY = "selectedBudgetId";
 const BUDGETS_STORAGE_KEY = "allBudgets";
 const ACCOUNTS_STORAGE_KEY = "accounts";
 const CATEGORIES_STORAGE_KEY = "categories";
 const FREQ_TRAN_STORAGE_KEY = "frequentTransactions";
+const TOKEN_SESSION_DATA_KEY = "ftfy-session";
+const TOKEN_EXPIRATION_WINDOW_SECS = 300;
 
 /**
  * Helper for adding versioned data to local storage
@@ -115,5 +118,40 @@ export const ynabData = {
       localStorage.removeItem(
         `${CATEGORIES_STORAGE_KEY}_${budgetId}_${DATA_VERSION}`
       ),
+  },
+
+  token: {
+    /**
+     * Get token from session storage refreshing it, if necessary.
+     */
+    load: async () => {
+      const tokenData = JSON.parse(
+        sessionStorage.getItem(TOKEN_SESSION_DATA_KEY)
+      );
+      const expiresAt = new Date(tokenData.expires_at);
+      const timeDelta =
+        expiresAt.valueOf() -
+        (Date.now() + TOKEN_EXPIRATION_WINDOW_SECS * 1000);
+
+      if (timeDelta <= 0) {
+        console.log("Token expired");
+
+        const newTokenData = await refreshToken(tokenData);
+        if (newTokenData) {
+          ynabData.token.save(newTokenData);
+        }
+
+        return newTokenData;
+      } else {
+        console.log("Token fresh");
+        return tokenData;
+      }
+    },
+    save: (tokenData) => {
+      sessionStorage.setItem(TOKEN_SESSION_DATA_KEY, JSON.stringify(tokenData));
+    },
+    reset: () => {
+      sessionStorage.removeItem(TOKEN_SESSION_DATA_KEY);
+    },
   },
 };

@@ -18,7 +18,7 @@
           class="p-0 alert-link"
           on:click={() => redirectToOAuth()}
         >
-          Login
+          Re-login
         </Button>
       </div>
     {/if}
