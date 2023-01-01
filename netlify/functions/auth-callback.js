@@ -25,7 +25,10 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 302,
       headers: {
-        Location: `${url}#access_token=${token.access_token}&refresh_token=${token.refresh_token}`,
+        Location:
+          `${url}#access_token=${token.access_token}` +
+          `&refresh_token=${token.refresh_token}` +
+          `&expires_at=${token.expires_at.toISOString()}`,
         "Cache-Control": "no-cache",
       },
       body: "redirecting to application...",
