@@ -56,8 +56,8 @@ export async function refreshToken(tokenData) {
       return response.json();
     })
     .then((data) => {
-      console.log("Data: " + data);
-      console.log(data);
+      // console.log("Data: " + data);
+      // console.log(data);
       return data.data;
     })
     .catch((error) => {

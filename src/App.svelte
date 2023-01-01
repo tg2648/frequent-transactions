@@ -21,7 +21,7 @@
     console.log("App onMount()");
     const tokenData = await findTokenData();
     if (tokenData) {
-      console.log("Token data in onMount: " + tokenData.access_token);
+      // console.log("Token data in onMount: " + tokenData.access_token);
       token = tokenData.access_token;
     } else {
       // Could not obtain token, need to prompt user to re-login

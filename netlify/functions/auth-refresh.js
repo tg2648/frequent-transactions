@@ -5,7 +5,6 @@ exports.handler = async (event, context) => {
 
   try {
     tokenData = JSON.parse(event.body);
-    console.log(tokenData);
   } catch {
     return {
       statusCode: 500,
