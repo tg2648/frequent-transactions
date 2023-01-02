@@ -128,6 +128,12 @@ export const ynabData = {
       const tokenData = JSON.parse(
         sessionStorage.getItem(TOKEN_SESSION_DATA_KEY)
       );
+
+      if (tokenData === null) {
+        return null;
+      }
+
+      // If there is a token in storage, try to refresh it if it expired
       const expiresAt = new Date(tokenData.expires_at);
       const timeDelta =
         expiresAt.valueOf() -
@@ -139,9 +145,15 @@ export const ynabData = {
         const newTokenData = await refreshToken(tokenData);
         if (newTokenData) {
           ynabData.token.save(newTokenData);
+          return newTokenData;
+        } else {
+          // If token could not be refreshed, return old token and prompt user to re-login
+          apiErrorType.set("unauthorized");
+          apiError.set(
+            "Unable to authorize with YNAB. Please try to re-login:"
+          );
+          return tokenData;
         }
-
-        return newTokenData;
       } else {
         console.log("Token fresh");
         return tokenData;

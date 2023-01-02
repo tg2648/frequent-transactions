@@ -1,7 +1,6 @@
 <script>
   // @ts-ignore
   import * as ynab from "ynab";
-  import { getContext } from "svelte";
   import { Button, Icon, Collapse } from "sveltestrap";
 
   // Local imports
@@ -23,7 +22,7 @@
     loading = true;
     const token = await ynabData.token.load();
 
-    if (token) {
+    if ($apiErrorType !== "unauthorized") {
       const ynabApi = new ynab.API(token.access_token);
       ynabApi.transactions
         .createTransaction(transactionDetails.budget.id, {

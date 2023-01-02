@@ -12,30 +12,21 @@
   import GithubLink from "./lib/GithubLink.svelte";
   import screenshot from "./assets/screenshot_1.png";
 
-  let token = null;
+  let promise;
 
   let offcanvasOpen = false;
   const offcanvasToggle = () => (offcanvasOpen = !offcanvasOpen);
 
-  onMount(async () => {
+  onMount(() => {
     console.log("App onMount()");
-    const tokenData = await findTokenData();
-    if (tokenData) {
-      // console.log("Token data in onMount: " + tokenData.access_token);
-      token = tokenData.access_token;
-    } else {
-      // Could not obtain token, need to prompt user to re-login
-      token = "temp";
-      apiErrorType.set("unauthorized");
-      apiError.set("Unable to authorize with YNAB. Please re-login:");
-    }
+    promise = findTokenData();
   });
 
   function logout() {
-    token = null;
     apiError.set(null);
     sessionStorage.clear();
     localStorage.clear();
+    promise = findTokenData();
   }
 </script>
 
@@ -47,71 +38,79 @@
 </svelte:head>
 
 <main class="container py-4 px-3 mx-auto">
-  {#if token}
-    <nav class="navbar navbar-expand-lg bg-light mb-2">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Frequent Transactions</span>
-        <div class="ms-auto me-2">
-          <Button
-            outline
-            class="border-0 fs-2"
-            style="--bs-btn-padding-y: 0rem;"
-            on:click={offcanvasToggle}
-          >
-            <Icon name="list" />
-          </Button>
+  {#await promise}
+    <p>Loading...</p>
+  {:then token}
+    {#if token}
+      <nav class="navbar navbar-expand-lg bg-light mb-2">
+        <div class="container-fluid">
+          <span class="navbar-brand mb-0 h1">Frequent Transactions</span>
+          <div class="ms-auto me-2">
+            <Button
+              outline
+              class="border-0 fs-2"
+              style="--bs-btn-padding-y: 0rem;"
+              on:click={offcanvasToggle}
+            >
+              <Icon name="list" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
 
-    {#if $apiError}
-      <ApiError error={$apiError} type={$apiErrorType} />
+      {#if $apiError}
+        <ApiError error={$apiError} type={$apiErrorType} />
+      {/if}
+
+      <Budgets />
+
+      <Offcanvas
+        isOpen={offcanvasOpen}
+        toggle={offcanvasToggle}
+        placement="end"
+      >
+        <div class="d-grid gap-2">
+          <Button color={"warning"} on:click={logout}>Logout</Button>
+          <div>
+            All data saved in your browser will be cleared after logging out.
+          </div>
+          <hr class="mb-1" />
+          <div class="d-flex justify-content-center fs-4">
+            <GithubLink />
+          </div>
+        </div>
+      </Offcanvas>
+    {:else}
+      <h1 class="display-3">
+        Frequent Transactions for <span class="header">YNAB</span>
+      </h1>
+
+      <p class="fs-4 mt-4 mb-5">
+        Have non-recurrent transactions that occur often? Log them quickly in
+        YNAB using this tool.
+      </p>
+
+      <img
+        src={screenshot}
+        class="img-fluid shadow bg-body rounded p-3"
+        alt="Screenshot"
+      />
+
+      <div class="mt-5 mb-4 d-flex justify-content-center">
+        <Button color={"primary"} on:click={() => redirectToOAuth()}>
+          Authorize with YNAB
+        </Button>
+      </div>
+
+      <p>
+        Please note that this tool works directly in your browser, so it is
+        currently not possible to synchronize frequent transactions across
+        multiple devices.
+      </p>
+
+      <Footer />
     {/if}
-
-    <Budgets />
-
-    <Offcanvas isOpen={offcanvasOpen} toggle={offcanvasToggle} placement="end">
-      <div class="d-grid gap-2">
-        <Button color={"warning"} on:click={logout}>Logout</Button>
-        <div>
-          All data saved in your browser will be cleared after logging out.
-        </div>
-        <hr class="mb-1" />
-        <div class="d-flex justify-content-center fs-4">
-          <GithubLink />
-        </div>
-      </div>
-    </Offcanvas>
-  {:else}
-    <h1 class="display-3">
-      Frequent Transactions for <span class="header">YNAB</span>
-    </h1>
-
-    <p class="fs-4 mt-4 mb-5">
-      Have non-recurrent transactions that occur often? Log them quickly in YNAB
-      using this tool.
-    </p>
-
-    <img
-      src={screenshot}
-      class="img-fluid shadow bg-body rounded p-3"
-      alt="Screenshot"
-    />
-
-    <div class="mt-5 mb-4 d-flex justify-content-center">
-      <Button color={"primary"} on:click={() => redirectToOAuth()}>
-        Authorize with YNAB
-      </Button>
-    </div>
-
-    <p>
-      Please note that this tool works directly in your browser, so it is
-      currently not possible to synchronize frequent transactions across
-      multiple devices.
-    </p>
-
-    <Footer />
-  {/if}
+  {/await}
 </main>
 
 <style>

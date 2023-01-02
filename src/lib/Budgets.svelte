@@ -1,10 +1,10 @@
 <script>
   import * as ynab from "ynab";
-  import { getContext, onMount } from "svelte";
+  import { onMount } from "svelte";
   import { Button, Modal, ModalBody, ModalHeader } from "sveltestrap";
 
   // Local imports
-  import { apiError, ynabData } from "../stores";
+  import { apiError, apiErrorType, ynabData } from "../stores";
   import { convertNumberToMilliUnits, generateId } from "../utils";
   import AddTransactionForm from "./AddTransactionForm.svelte";
   import FreqTransactions from "./FreqTransactions.svelte";
@@ -78,7 +78,8 @@
     } else {
       console.log("Calling budget endpoint");
       const token = await ynabData.token.load();
-      if (token) {
+
+      if ($apiErrorType !== "unauthorized") {
         const ynabApi = new ynab.API(token.access_token);
         ynabApi.budgets
           .getBudgets()
@@ -108,7 +109,8 @@
     } else {
       console.log("Calling accounts endpoint");
       const token = await ynabData.token.load();
-      if (token) {
+
+      if ($apiErrorType !== "unauthorized") {
         const ynabApi = new ynab.API(token.access_token);
         ynabApi.accounts
           .getAccounts(budgetId)
@@ -138,7 +140,8 @@
     } else {
       console.log("Calling categories endpoint");
       const token = await ynabData.token.load();
-      if (token) {
+
+      if ($apiErrorType !== "unauthorized") {
         const ynabApi = new ynab.API(token.access_token);
         ynabApi.categories
           .getCategories(budgetId)
