@@ -28,7 +28,7 @@ export async function findTokenData() {
     ynabData.token.save(tokenData);
     window.history.replaceState("", "", window.location.pathname);
   } else {
-    // Otherwise try sessionStorage
+    // Otherwise try storage
     tokenData = await ynabData.token.load();
   }
 
