@@ -126,7 +126,7 @@ export const ynabData = {
      */
     load: async () => {
       const tokenData = JSON.parse(
-        sessionStorage.getItem(TOKEN_SESSION_DATA_KEY)
+        localStorage.getItem(TOKEN_SESSION_DATA_KEY)
       );
 
       if (tokenData === null) {
@@ -160,10 +160,10 @@ export const ynabData = {
       }
     },
     save: (tokenData) => {
-      sessionStorage.setItem(TOKEN_SESSION_DATA_KEY, JSON.stringify(tokenData));
+      localStorage.setItem(TOKEN_SESSION_DATA_KEY, JSON.stringify(tokenData));
     },
     reset: () => {
-      sessionStorage.removeItem(TOKEN_SESSION_DATA_KEY);
+      localStorage.removeItem(TOKEN_SESSION_DATA_KEY);
     },
   },
 };
