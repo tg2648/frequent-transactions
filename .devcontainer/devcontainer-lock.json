@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/devcontainers-extra/features/netlify-cli:1": {
+      "version": "1.0.4",
+      "resolved": "ghcr.io/devcontainers-extra/features/netlify-cli@sha256:5daa356aee31b798290a179699ecb8480b0b1c67978cb22f31387e51595fb3b4",
+      "integrity": "sha256:5daa356aee31b798290a179699ecb8480b0b1c67978cb22f31387e51595fb3b4"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "version": "2.7.0",
+      "resolved": "ghcr.io/devcontainers/features/common-utils@sha256:3f63bbee7418dc940d9e5e7ab93ef3049acfe4dba3085b17ee45fe307fdba4e5",
+      "integrity": "sha256:3f63bbee7418dc940d9e5e7ab93ef3049acfe4dba3085b17ee45fe307fdba4e5"
+    }
+  }
+}
