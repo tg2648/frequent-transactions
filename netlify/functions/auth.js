@@ -1,32 +1,29 @@
 const oauth = require("./utils/oauth");
+const { NONCE_PATTERN, redirectUri, createState } = require("./utils/session");
 
 exports.handler = async (event, context) => {
-  const siteUrl = process.env.URL || "http://localhost:8888";
+  const nonce = event.queryStringParameters?.nonce;
 
-  if (
-    !event.queryStringParameters ||
-    Object.keys(event.queryStringParameters).length === 0
-  ) {
+  if (!nonce || !NONCE_PATTERN.test(nonce)) {
     return {
-      statusCode: 401,
-      body: JSON.stringify({
-        error: "Missing required parameters `url`",
-      }),
+      statusCode: 400,
+      body: JSON.stringify({ error: "Missing or invalid parameter `nonce`" }),
     };
   }
 
-  const { url } = event.queryStringParameters;
+  const { state, cookie } = createState(nonce);
 
   const authorizationURI = oauth.authorizeURL({
-    redirect_uri: `${siteUrl}/.netlify/functions/auth-callback`,
-    state: `url=${url}`,
+    redirect_uri: redirectUri,
+    state,
   });
 
   return {
     statusCode: 302,
     headers: {
       Location: authorizationURI,
-      "Cache-Control": "no-cache",
+      "Set-Cookie": cookie,
+      "Cache-Control": "no-store",
     },
     body: "redirecting to authorization...",
   };

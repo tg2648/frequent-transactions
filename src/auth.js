@@ -1,38 +1,50 @@
 import { ynabData } from "./stores";
 
+const OAUTH_NONCE_KEY = "ftfy-oauth-nonce";
+
 export function redirectToOAuth() {
-  // tell the auth flow where to go once you have a token
-  const successURL = `${location.origin}${location.pathname}`;
+  // The nonce must come back with the tokens, proving this tab started the login
+  const nonce = crypto.randomUUID();
+  sessionStorage.setItem(OAUTH_NONCE_KEY, nonce);
 
   // redirect to start the OAuth flow
-  location.replace(`/.netlify/functions/auth?url=${successURL}`);
+  location.replace(
+    `/.netlify/functions/auth?nonce=${encodeURIComponent(nonce)}`
+  );
 }
 
 export async function findTokenData() {
-  let tokenData = {};
-  const search = window.location.hash
-    .substring(1)
-    .replace(/&/g, '","')
-    .replace(/=/g, '":"');
+  const hash = window.location.hash.substring(1);
 
-  if (search && search !== "") {
-    // Try to get access_token from the hash returned by OAuth
-    const params = JSON.parse('{"' + search + '"}', function (key, value) {
-      return key === "" ? value : decodeURIComponent(value);
-    });
+  if (hash) {
+    const params = new URLSearchParams(hash);
+    const expectedNonce = sessionStorage.getItem(OAUTH_NONCE_KEY);
+    sessionStorage.removeItem(OAUTH_NONCE_KEY);
+    window.history.replaceState(null, "", window.location.pathname);
 
-    tokenData.access_token = params.access_token;
-    tokenData.refresh_token = params.refresh_token;
-    tokenData.expires_at = params.expires_at;
+    if (params.has("error")) {
+      console.warn("Authorization failed:", params.get("error"));
+    } else if (
+      params.get("access_token") &&
+      expectedNonce &&
+      params.get("nonce") === expectedNonce
+    ) {
+      // Accept tokens only from a login this tab started
+      const tokenData = {
+        access_token: params.get("access_token"),
+        refresh_token: params.get("refresh_token"),
+        expires_at: params.get("expires_at"),
+      };
 
-    ynabData.token.save(tokenData);
-    window.history.replaceState("", "", window.location.pathname);
-  } else {
-    // Otherwise try storage
-    tokenData = await ynabData.token.load();
+      ynabData.token.save(tokenData);
+      return tokenData;
+    } else if (params.has("access_token")) {
+      console.warn("Ignoring token response not started by this tab");
+    }
   }
 
-  return tokenData;
+  // Otherwise try storage
+  return await ynabData.token.load();
 }
 
 /**

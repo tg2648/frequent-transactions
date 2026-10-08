@@ -110,6 +110,14 @@
 
       <Footer />
     {/if}
+  {:catch}
+    <div class="alert alert-danger" role="alert">
+      Something went wrong while loading. Please
+      <Button color="link" class="p-0 alert-link" on:click={logout}>
+        clear your data
+      </Button>
+      and log in again.
+    </div>
   {/await}
 </main>
 

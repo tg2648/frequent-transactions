@@ -20,9 +20,11 @@ There is no test suite, linter, or type-check script. `jsconfig.json` enables `c
 
 The YNAB client secret lives only in Netlify functions; the browser never sees it.
 
-1. `redirectToOAuth()` sends the browser to `/.netlify/functions/auth?url=<app url>`, which redirects to YNAB's authorize page, carrying the return URL in `state`.
-2. YNAB redirects to `auth-callback`, which exchanges the code and redirects back to the app with `access_token`, `refresh_token`, `expires_at` in the **URL hash**.
-3. `findTokenData()` (called in `App.svelte` on mount) parses the hash, saves the token, and strips the hash; otherwise it falls back to the stored token.
+1. `redirectToOAuth()` stores a random nonce in `sessionStorage` and sends the browser to `/.netlify/functions/auth?nonce=<nonce>`. That function generates a random `state`, stores `state.nonce` in an HttpOnly cookie scoped to the callback path, and redirects to YNAB's authorize page.
+2. YNAB redirects to `auth-callback`, which verifies `state` against the cookie, exchanges the code, and redirects to the fixed app URL (`${URL}/`, never a client-supplied URL) with `access_token`, `refresh_token`, `expires_at`, `nonce` in the **URL hash**. Failures redirect with `#error=<code>` instead.
+3. `findTokenData()` (called in `App.svelte` on mount) strips the hash and saves the token only if the hash `nonce` matches the one in `sessionStorage`; otherwise it falls back to the stored token. Because the return URL is fixed, login from a deploy preview lands on the production site.
+
+Helpers shared by the auth functions (`state` cookie, redirect URI, app URL) are in `netlify/functions/utils/session.js`. Security headers/CSP for the static site are in `public/_headers`; update `connect-src` etc. there if you add new external origins.
 4. `auth-refresh` (POST with the token JSON) returns refreshed tokens.
 
 The `simple-oauth2` client shared by the functions is in `netlify/functions/utils/oauth.js`; it throws at module load if the env vars are missing.

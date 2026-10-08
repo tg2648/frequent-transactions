@@ -1,45 +1,49 @@
-const qs = require("querystring");
 const oauth = require("./utils/oauth");
+const {
+  redirectUri,
+  clearStateCookie,
+  verifyState,
+  redirectToApp,
+} = require("./utils/session");
 
 exports.handler = async (event, context) => {
-  const siteUrl = process.env.URL || "http://localhost:8888";
+  const { code, state, error } = event.queryStringParameters ?? {};
+  const clearCookie = { "Set-Cookie": clearStateCookie() };
 
-  if (!event.queryStringParameters) {
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ error: "Not authorized" }),
-    };
+  // e.g. the user denied access on the YNAB authorization page
+  if (error) {
+    return redirectToApp({ error: String(error).slice(0, 64) }, clearCookie);
   }
 
-  const { code, state } = event.queryStringParameters;
-  const { url } = qs.parse(state);
+  const nonce = verifyState(event, state);
+  if (!nonce) {
+    return redirectToApp({ error: "invalid_state" }, clearCookie);
+  }
+
+  if (!code) {
+    return redirectToApp({ error: "missing_code" }, clearCookie);
+  }
 
   try {
     // if the user accepts, we get an authorization token, which we need to
     // exchange for an access token
     const { token } = await oauth.getToken({
       code,
-      redirect_uri: `${siteUrl}/.netlify/functions/auth-callback`,
+      redirect_uri: redirectUri,
     });
 
-    return {
-      statusCode: 302,
-      headers: {
-        Location:
-          `${url}#access_token=${token.access_token}` +
-          `&refresh_token=${token.refresh_token}` +
-          `&expires_at=${token.expires_at.toISOString()}`,
-        "Cache-Control": "no-cache",
+    return redirectToApp(
+      {
+        access_token: token.access_token,
+        refresh_token: token.refresh_token,
+        expires_at: token.expires_at.toISOString(),
+        nonce,
       },
-      body: "redirecting to application...",
-    };
+      clearCookie
+    );
   } catch (err) {
-    console.error("Access token error", err.message);
-    console.error(err);
+    console.error("Access token error", err.output?.statusCode ?? err.name);
 
-    return {
-      statusCode: err.statusCode || 500,
-      body: JSON.stringify({ error: err.message }),
-    };
+    return redirectToApp({ error: "token_exchange_failed" }, clearCookie);
   }
 };
