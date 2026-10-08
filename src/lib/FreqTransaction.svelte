@@ -5,7 +5,7 @@
 
   // Local imports
   import { ynabData, apiError, apiErrorType } from "../stores";
-  import { ynabFlagColors } from "../utils";
+  import { ynabFlagColors, getCurrentLocalDate } from "../utils";
 
   // Props
   export let transactionDetails, removeTransaction, moveUp, moveDown, isEditing;
@@ -30,7 +30,7 @@
             account_id: transactionDetails.account.id,
             category_id: transactionDetails.category?.id,
             payee_name: transactionDetails.payeeName,
-            date: ynab.utils.getCurrentDateInISOFormat(),
+            date: getCurrentLocalDate(),
             amount: transactionDetails.milliAmount,
             memo: transactionDetails.memo,
             flag_color: transactionDetails.flag,
